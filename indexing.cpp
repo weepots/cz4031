@@ -25,7 +25,7 @@ class BPlusTree{
     int _noOfNodes = 0 ;
     int _height = 1;
 public:
-    BPTree(){
+    BPlusTree(){
     _root._leafNode = true;
     }
     void insert(Record record){
