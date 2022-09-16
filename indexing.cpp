@@ -8,7 +8,7 @@ class Node{
     //list of keys
     int _key[N];
     //list of pointers to other nodes
-    Node *_pointer[N];
+    Node *_pointer[N+1];
     //pointer to next node, if any
     Node *_nextNode = NULL;
     //list of pointers to records(this will be empty if it is a leaf node)
