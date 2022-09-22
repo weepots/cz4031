@@ -30,12 +30,12 @@ public:
 };
 
 class BPlusTree{
-    Node _root;
-    int _noOfNodes = 0 ;
+    Node *_root = new Node;
+    int _noOfNodes = 1 ;
     int _height = 1;
 public:
     BPlusTree(){
-    _root._leafNode = true;
+    _root->_leafNode = true;
     }
     void insert(Record record){
         int nodeTrackerIndex = 0;
