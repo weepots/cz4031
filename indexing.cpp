@@ -4,6 +4,7 @@ using namespace std;
 
 const int N = 3 ;
 
+
 class Node{
     bool _leafNode;
     //list of keys
@@ -14,14 +15,14 @@ class Node{
     Node *_nextNode = NULL;
     //list of pointers to records(this will be empty if it is a leaf node)
     Record *_record[N];
-    
+
     int _size = 0;
 
     friend class BPlusTree;
 
 public:
     Node(){
-    
+
     for(int i = 0 ;i<N;i++){
         _key[i]=NULL;
         _pointer[i]=NULL;
@@ -127,6 +128,7 @@ public:
         }
         else{
             int temp[N+1];
+            Record *recordTemp[N+1];
             int floorVal = floor((N+1)/2);
             int ceilVal = ceil((N+1)/2);
             bool recordAdded = false;
@@ -135,22 +137,25 @@ public:
                 if(!recordAdded){
                         if(keyIndex<N && nodeTracker[nodeTrackerIndex]->_key[keyIndex]<record.getValue()){
                             temp[i]=nodeTracker[nodeTrackerIndex]->_key[keyIndex];
+                            recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
                             keyIndex++;
                         }
                         else{
                             temp[i] = record.getValue();
+                            recordTemp[i] = &record;
                             recordAdded = true;
                         }
                 }
                 else{
                     temp[i]=nodeTracker[nodeTrackerIndex]->_key[keyIndex];
+                    recordTemp[i]=nodeTracker[nodeTrackerIndex]->_record[keyIndex];
                     keyIndex++;
                 }
 
             }
 
             newNode->_leafNode = true;
-            newNode->_nextNode = nodeTracker[nodeTrackerIndex]->_nextNode();
+            newNode->_nextNode = nodeTracker[nodeTrackerIndex]->_nextNode;
             nodeTracker[nodeTrackerIndex]->_nextNode = newNode;
             nodeTracker[nodeTrackerIndex]->_size = ceilVal;
             newNode->_size = floorVal;
@@ -158,19 +163,23 @@ public:
             for(int i=0;i<N;i++){
                 if(i<ceilVal){
                 nodeTracker[nodeTrackerIndex]->_key[i] = temp[tempIndex];
+                nodeTracker[nodeTrackerIndex]->_record[i] = recordTemp[tempIndex];
                 tempIndex++;
                 }
                 else{
                 nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
+                nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                 }
             }
             for(int i=0;i<N;i++){
                 if(i<floorVal){
                 newNode->_key[i] = temp[tempIndex];
+                newNode->_record[i] = recordTemp[tempIndex];
                 tempIndex++;
                 }
                 else{
                 newNode->_key[i] = NULL;
+                newNode->_record[i] = NULL;
                 }
             }
         }
@@ -342,6 +351,52 @@ public:
                     }
                 }
         }
+
+    }
+    Record* search(int value){
+    int noOfNodes = 1,nodesPrinted = 1;
+    Record *result;
+    Node *cursor = _root;
+
+
+    while(!cursor->_leafNode){
+        if(nodesPrinted<=5){
+        for(int i =0;i<N;i++){
+            //if(cursor->_key[i] == NULL)break;
+            printf("%d, ",cursor->_key[i]);
+        }
+        printf("\n");
+        nodesPrinted++;
+        }
+        noOfNodes++;
+        for(int i=0;i<N;i++){
+            if(cursor->_key[i]!=NULL && cursor->_key[i]>value){
+                cursor = cursor->_pointer[i];
+                break;
+            }
+            else if(cursor->_key[i]==NULL){
+                cursor = cursor->_pointer[i];
+
+            break;
+            }
+            else if(cursor->_key[i]!=NULL && cursor->_key[i]<=value&& i == N-1){
+                cursor = cursor->_pointer[i+1];
+                break;
+            }
+        }
+        }
+                if(nodesPrinted<=5){
+        for(int i =0;i<N;i++){
+            //if(cursor->_key[i] == NULL)break;
+            printf("%d, ",cursor->_key[i]);
+            if(cursor->_key[i] == value){
+                result = cursor->_record[i];
+            }
+        }
+        }
+        printf("\n");
+        printf("No of nodes accessed:%d\n",noOfNodes);
+        return result;
 
     }
     void remove(Record record){
