@@ -1,21 +1,26 @@
 #define STORAGE_H
 
-const int tconst_size = 10;
+const int tconst_size = 12;
 typedef unsigned un_int;
 
 struct Record{
-    char tconst[tconst_size]; //10 byte length
-    float avgRating;
-    int numVotes;
+    char tconst[tconst_size]; //12 byte length
+    float avgRating; //4 byte length
+    int numVotes; // 4 byte length
 
 };
 
-struct blkNode{
-    char address;
+struct BlkNode{
+    Address address;
     int blkSize;
     struct blkNode* next;
 };
 
+
+struct Address{
+    char* blockAddress;
+    int offset;
+};
 
 
 class storage{
@@ -26,7 +31,7 @@ private:
     //Attributes in bytes
     int storageSize;
     int blkNodeSize;
-    int currentblkNodeSize;
+    int currentUsedBlkSize;
     int usedBlkSize;
     int usedRecordSize;
 
@@ -51,7 +56,7 @@ public:
 
     // record functions
     char writeRecord(int recordSize);
-    void deleteRecord(char address);
+    void deleteRecord(Address address);
     bool createBlock();
     
     
