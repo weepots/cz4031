@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 using namespace std;
 
 const int N = 3 ;
@@ -149,7 +150,7 @@ public:
             }
 
             newNode->_leafNode = true;
-            newNode->_nextNode = nodeTracker[nodeTrackerIndex]->getNextNode();
+            newNode->_nextNode = nodeTracker[nodeTrackerIndex]->_nextNode();
             nodeTracker[nodeTrackerIndex]->_nextNode = newNode;
             nodeTracker[nodeTrackerIndex]->_size = ceilVal;
             newNode->_size = floorVal;
