@@ -35,17 +35,25 @@ public:
 
 class BPlusTree
 {
-    Node *_root = new Node;
-    int _noOfNodes = 1;
-    int _height = 1;
+    Node *_root ;
+    int _noOfNodes = 0;
+    int _height = 0;
 
 public:
     BPlusTree()
     {
-        _root->_leafNode = true;
+
     }
+    Node getRoot(){return *_root;}
     void insert(Record record)
-    {
+    {   
+        if(_noOfNodes == 0){
+        _root = new Node;
+        _root->_leafNode = true;
+        _noOfNodes++;
+        _height++;
+    }
+
         int nodeTrackerIndex = 0;
         Node *nodeTracker[_height];
         nodeTracker[nodeTrackerIndex] = _root;
