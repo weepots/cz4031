@@ -2,6 +2,21 @@
 #include <math.h>
 using namespace std;
 
+class Record{
+    int value;
+public:
+    Record(int val){
+    value = val;
+    }
+    Record(){
+    value = 0;
+    }
+    int getValue(){
+    return value;
+    }
+
+};
+
 const int N = 3;
 
 class Node
