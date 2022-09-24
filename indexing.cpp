@@ -458,6 +458,63 @@ public:
             }
         }
     }
+    
+    Record *search(int value)
+    {
+        int noOfNodes = 1, nodesPrinted = 1;
+        Record *result;
+        Node *cursor = _root;
+
+        while (!cursor->_leafNode)
+        {
+            if (nodesPrinted <= 5)
+            {
+                for (int i = 0; i < N; i++)
+                {
+                    // if(cursor->_key[i] == NULL)break;
+                    printf("%d, ", cursor->_key[i]);
+                }
+                printf("\n");
+                nodesPrinted++;
+            }
+            noOfNodes++;
+            for (int i = 0; i < N; i++)
+            {
+                if (cursor->_key[i] != NULL && cursor->_key[i] > value)
+                {
+                    cursor = cursor->_pointer[i];
+                    break;
+                }
+                else if (cursor->_key[i] == NULL)
+                {
+                    cursor = cursor->_pointer[i];
+
+                    break;
+                }
+                else if (cursor->_key[i] != NULL && cursor->_key[i] <= value && i == N - 1)
+                {
+                    cursor = cursor->_pointer[i + 1];
+                    break;
+                }
+            }
+        }
+        if (nodesPrinted <= 5)
+        {
+            for (int i = 0; i < N; i++)
+            {
+                // if(cursor->_key[i] == NULL)break;
+                printf("%d, ", cursor->_key[i]);
+                if (cursor->_key[i] == value)
+                {
+                    result = cursor->_record[i];
+                }
+            }
+        }
+        printf("\n");
+        printf("No of nodes accessed:%d\n", noOfNodes);
+        return result;
+    }
+    
     void remove(Record record)
     {
     }
