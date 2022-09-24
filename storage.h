@@ -31,15 +31,15 @@ private:
     char* storagePtr;
     char* blkPtr;
     //Attributes in bytes
-    int storageSize;
-    int blkNodeSize;
-    int currentUsedBlkSize;
-    int usedBlkSize;
-    int usedRecordSize;
+    int storageSize; //storage size in bytes
+    int blkNodeSize; //blk node size in bytes
+    int currentUsedBlkSize; //current used blk size in bytes
+    int usedBlkSize; //total used block size
+    int usedRecordSize; //total used record size
 
     //Attributes in numbers
-    int availBlk;
-    int usedBlk;
+    int availBlk; //number of unallocated blocks
+    int usedBlk; //number of allocated blocks
 
 public:
     //initialise class
