@@ -305,8 +305,8 @@ public:
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((N) / 2)+1;
-                    int ceilVal = ceil((N) / 2)+2;
+                    int floorVal = floor((N) / 2);
+                    int ceilVal = ceil((N) / 2)+1;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
 
@@ -343,7 +343,7 @@ public:
 
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i < ceilVal)
+                        if (i <= ceilVal)
                         {
                             nodeTracker[nodeTrackerIndex - 1]->_pointer[i] = temp[tempIndex];
                             tempIndex++;
@@ -356,7 +356,7 @@ public:
 
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i < floorVal)
+                        if (i <= floorVal)
                         {
                             internalNode->_pointer[i] = temp[tempIndex];
                             tempIndex++;
