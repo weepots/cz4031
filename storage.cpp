@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "storage.h"
 
 using namespace std;
@@ -26,8 +27,12 @@ storage:: ~ storage(){
 };
 // record functions
 char storage::writeRecord(int recordSize){
-    if((recordSize + currentUsedBlkSize) && (!createBlock())){
-        cout << "Not enough space in storage to add new record";
+    if((recordSize + currentUsedBlkSize > blkNodeSize) or (usedBlk == 0)){
+
+        bool allocated = createBlock();
+        if(!allocated){
+            cout << "unable to allocate a new block";
+        }
     }
     else if (recordSize > blkNodeSize){
         cout << "Records cannot be larger than block size";
@@ -40,9 +45,29 @@ char storage::writeRecord(int recordSize){
 
 };
 
-void storage::deleteRecord(Address address){
-    usedRecordSize -= 20; // reduce total record by size of one record , 20b
-    void* recordAddress = 
+void storage::deleteRecord(Address address, int recordSize){
+    //get record address
+
+    try{
+        void* recordAddress = (char *)address.blockAddress + address.offset;
+        //set entire record to null
+        memset(recordAddress, '/0', recordSize );
+
+        //Update actuall storage size
+        usedRecordSize =- recordSize;
+
+
+        //
+        if(emptyCheck(address)){
+            usedBlk--;
+            availBlk++;
+            currentUsedBlkSize -= blkNodeSize;
+        
+        }
+    }
+    catch(...){
+        cout<<"Could not remove record/block";
+    };
 
 };
 
@@ -58,6 +83,15 @@ bool storage::createBlock(){
     return false;
 
 };
+
+bool storage:: emptyCheck(Address address){
+        unsigned char emptyBlock[blkNodeSize];
+        memset(emptyBlock, '/0', blkNodeSize);
+        bool isEmptyBlock = memcmp(emptyBlock, address.blockAddress, blkNodeSize);
+        return isEmptyBlock;
+}
+
+
 
 
 

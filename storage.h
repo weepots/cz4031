@@ -4,7 +4,7 @@ const int tconst_size = 12;
 typedef unsigned un_int;
 
 struct Record{
-    char tconst[tconst_size]; //12 byte length
+    char tconst[tconst_size]; //12 byte length record ID as key
     float avgRating; //4 byte length
     int numVotes; // 4 byte length
 
@@ -13,7 +13,9 @@ struct Record{
 struct BlkNode{
     Address address;
     int blkSize;
-    struct blkNode* next;
+    class blkNode* next;
+
+    
 };
 
 
@@ -56,8 +58,9 @@ public:
 
     // record functions
     char writeRecord(int recordSize);
-    void deleteRecord(Address address);
+    void deleteRecord(Address address, int recordSize);
     bool createBlock();
+    bool emptyCheck(Address address);
     
     
 
