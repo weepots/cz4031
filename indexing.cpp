@@ -61,7 +61,7 @@ public:
     }
     Node getRoot(){return *_root;}
     void insert(Record record)
-    {   
+    {
         if(_noOfNodes == 0){
         _root = new Node;
         _root->_leafNode = true;
@@ -107,7 +107,7 @@ public:
                 emptySpace = true;
             }
         }
-        // if(record.getValue() == 11)nodeTracker[nodeTrackerIndex]->printAll();
+
         if (emptySpace)
         {
             int temp1, temp2;
@@ -305,10 +305,11 @@ public:
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((N) / 2);
-                    int ceilVal = ceil((N) / 2) + 1;
+                    int floorVal = floor((N) / 2)+1;
+                    int ceilVal = ceil((N) / 2)+2;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
+
                     for (int i = 0; i < N + 3; i++)
                     {
                         if (!pointerAdded)
@@ -329,7 +330,7 @@ public:
                         }
                         else
                         {
-                            temp[i] = nodeTracker[nodeTrackerIndex]->_pointer[pointerIndex];
+                            temp[i] = nodeTracker[nodeTrackerIndex -1]->_pointer[pointerIndex];
                             pointerIndex++;
                         }
                     }
@@ -339,9 +340,10 @@ public:
                     int tempIndex = 0;
                     nodeTracker[nodeTrackerIndex - 1]->_size = ceilVal;
                     internalNode->_size = floorVal;
+
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i <= ceilVal)
+                        if (i < ceilVal)
                         {
                             nodeTracker[nodeTrackerIndex - 1]->_pointer[i] = temp[tempIndex];
                             tempIndex++;
@@ -351,9 +353,10 @@ public:
                             nodeTracker[nodeTrackerIndex - 1]->_pointer[i] = NULL;
                         }
                     }
+
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i <= floorVal)
+                        if (i < floorVal)
                         {
                             internalNode->_pointer[i] = temp[tempIndex];
                             tempIndex++;
@@ -363,8 +366,10 @@ public:
                             internalNode->_pointer[i] = NULL;
                         }
                     }
+
                     nodeTrackerIndex--;
                     Node *cursor;
+
                     for (int i = 0; i < N; i++)
                     {
                         if (nodeTracker[nodeTrackerIndex]->_pointer[i + 1] == NULL)
@@ -378,16 +383,22 @@ public:
                                 cursor = cursor->_pointer[0];
                             nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
                         }
+
                     }
+
                     for (int i = 0; i < N; i++)
                     {
                         if (internalNode->_pointer[i + 1] == NULL)
-                            break;
+                        {
+                            internalNode->_key[i] = NULL;
+                        }
+                        else{
                         cursor = internalNode->_pointer[i + 1];
-                        while (!cursor->_leafNode)
-                            cursor = cursor->_pointer[0];
+                        while (!cursor->_leafNode){cursor = cursor->_pointer[0];}
                         internalNode->_key[i] = cursor->_key[0];
+                        }
                     }
+
                     newInternalNode = internalNode;
                 }
             }
@@ -446,61 +457,6 @@ public:
                 }
             }
         }
-    }
-    Record *search(int value)
-    {
-        int noOfNodes = 1, nodesPrinted = 1;
-        Record *result;
-        Node *cursor = _root;
-
-        while (!cursor->_leafNode)
-        {
-            if (nodesPrinted <= 5)
-            {
-                for (int i = 0; i < N; i++)
-                {
-                    // if(cursor->_key[i] == NULL)break;
-                    printf("%d, ", cursor->_key[i]);
-                }
-                printf("\n");
-                nodesPrinted++;
-            }
-            noOfNodes++;
-            for (int i = 0; i < N; i++)
-            {
-                if (cursor->_key[i] != NULL && cursor->_key[i] > value)
-                {
-                    cursor = cursor->_pointer[i];
-                    break;
-                }
-                else if (cursor->_key[i] == NULL)
-                {
-                    cursor = cursor->_pointer[i];
-
-                    break;
-                }
-                else if (cursor->_key[i] != NULL && cursor->_key[i] <= value && i == N - 1)
-                {
-                    cursor = cursor->_pointer[i + 1];
-                    break;
-                }
-            }
-        }
-        if (nodesPrinted <= 5)
-        {
-            for (int i = 0; i < N; i++)
-            {
-                // if(cursor->_key[i] == NULL)break;
-                printf("%d, ", cursor->_key[i]);
-                if (cursor->_key[i] == value)
-                {
-                    result = cursor->_record[i];
-                }
-            }
-        }
-        printf("\n");
-        printf("No of nodes accessed:%d\n", noOfNodes);
-        return result;
     }
     void remove(Record record)
     {
