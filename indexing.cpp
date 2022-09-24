@@ -391,6 +391,7 @@ public:
                         if (internalNode->_pointer[i + 1] == NULL)
                         {
                             internalNode->_key[i] = NULL;
+
                         }
                         else{
                         cursor = internalNode->_pointer[i + 1];
@@ -404,19 +405,28 @@ public:
             }
             else
             {
-                nodeTrackerIndex--;
+
                 Node *cursor;
                 nodeTracker[nodeTrackerIndex]->_size = 0;
                 for (int i = 0; i < N; i++)
                 {
-                    if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
-                        break;
-                    nodeTracker[nodeTrackerIndex]->_size++;
-                    cursor = nodeTracker[nodeTrackerIndex]->_pointer[i + 1];
-                    while (!cursor->_leafNode)
-                        cursor = cursor->_pointer[0];
-                    nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
+
+                        if (nodeTracker[nodeTrackerIndex]->_pointer[i + 1] == NULL)
+                        {
+                            nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
+
+                        }
+                        else
+                        {nodeTracker[nodeTrackerIndex]->_size++;
+                            cursor = nodeTracker[nodeTrackerIndex]->_pointer[i + 1];
+                            while (!cursor->_leafNode)
+                                cursor = cursor->_pointer[0];
+                            nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
+
+                        }
+
                 }
+                nodeTrackerIndex--;
             }
         }
 
