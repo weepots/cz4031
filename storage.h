@@ -13,7 +13,7 @@ struct Record{
 struct BlkNode{
     Address address;
     int blkSize;
-    class blkNode* next;
+    struct blkNode* next;
 
     
 };
