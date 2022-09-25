@@ -9,7 +9,7 @@ using namespace std;
 storage::storage(int storageSize, int blkNodeSize){
     //initialise pointers
     char* storagePtr = nullptr;
-    this->storagePtr = new char[storageSize];
+    this->storagePtr = new char[storageSize]; // points to the first datablock in storage
     this->blkPtr = nullptr;
     //initialise attributes
     this->storageSize = storageSize;
@@ -21,10 +21,10 @@ storage::storage(int storageSize, int blkNodeSize){
 
 };
 // destroy class and clear memory
-storage:: ~ storage(){
-    delete storagePtr;
-    storagePtr = nullptr;
-};
+// storage:: ~ storage(){
+//     delete storagePtr;
+//     storagePtr = nullptr;
+// };
 // record functions
 char storage::writeRecord(int recordSize){
     if((recordSize + currentUsedBlkSize > blkNodeSize) or (usedBlk == 0)){
@@ -91,9 +91,27 @@ bool storage:: emptyCheck(Address address){
         return isEmptyBlock;
 }
 
+//getters
+int storage :: getStorageSize(){
+    return storageSize;
+}
 
+int storage :: getblkNodeSize(){
+    return blkNodeSize;
+}
 
+int storage :: getUsedRecordSize(){
+    return usedRecordSize;
+}
 
+int storage :: getUsedBlkSize(){
+    return usedBlkSize;
+}
 
+int storage :: getUsedBlk(){
+    return usedBlkSize;
+}
 
-
+int storage :: getAvailBlk(){
+    return availBlk;
+}

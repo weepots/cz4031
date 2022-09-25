@@ -1,3 +1,4 @@
+#ifndef STORAGE_H
 #define STORAGE_H
 
 const int tconst_size = 12;
@@ -10,18 +11,17 @@ struct Record{
 
 };
 
+struct Address{
+    char* blockAddress;
+    int offset;
+};
+
 struct BlkNode{
     Address address;
     int blkSize;
     class blkNode* next;
 
     
-};
-
-
-struct Address{
-    char* blockAddress;
-    int offset;
 };
 
 
@@ -45,7 +45,7 @@ public:
     //initialise class
     storage(int storageSize, int blkNodeSize);
     //destroy class and clear memory
-    ~ storage();
+    // ~ storage();
 
 
     //get functions
@@ -66,3 +66,5 @@ public:
 
 
 };
+
+#endif

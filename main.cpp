@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include "storage.h"
 
 using namespace std;
 
@@ -19,5 +20,12 @@ int main(){
         default:
             return 0;
     }
+
+    storage storage(200000000, block_size);
+    // storage storage(20,5);
+
+    cout << storage.getAvailBlk() <<endl;
+
+
     cout << block_size <<endl;
 }
