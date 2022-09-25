@@ -19,7 +19,7 @@ struct Address{
 struct BlkNode{
     Address address;
     int blkSize;
-    class blkNode* next;
+    struct blkNode* next;
 
     
 };
@@ -66,5 +66,6 @@ public:
 
 
 };
+
 
 #endif

@@ -55,13 +55,14 @@ void storage::deleteRecord(Address address, int recordSize){
 
         //Update actuall storage size
         usedRecordSize =- recordSize;
-
+        currentUsedBlkSize -= recordSize;
+        usedBlkSize -= blkNodeSize;
 
         //
         if(emptyCheck(address)){
             usedBlk--;
             availBlk++;
-            currentUsedBlkSize -= blkNodeSize;
+
         
         }
     }
