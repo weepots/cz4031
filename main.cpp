@@ -56,21 +56,21 @@ int main(){
     }
 
     //Ways to access record (Need Address)
-    Address adr = addressVector[12345];
-    printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
+    // Address adr = addressVector[0];
+    // printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
 
-    Record rec = storage.readRecord(adr);
-    printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
+    // Record rec = storage.readRecord(adr);
+    // printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
 
-    void* memoryAdr = (char*) adr.blockAddress+adr.offset;
-    printf("%s \n", (*(Record*)memoryAdr).tconst);
+    // void* memoryAdr = (char*) adr.blockAddress+adr.offset;
+    // printf("%s \n", (*(Record*)memoryAdr).tconst);
 
-    printf("%s %f %d\n", accessTConst(adr), accessAvgRating(adr), accessNumVotes(adr));
-    //----------------------------------------------------------------------------------------------------
+    // printf("%s %f %d\n", accessTConst(adr), accessAvgRating(adr), accessNumVotes(adr));
+    // //----------------------------------------------------------------------------------------------------
 
-    storage.printEveryRecordInSameBlock(addressVector[12345]);
-    storage.display();
-    fin.close();
+    // storage.printEveryRecordInSameBlock(addressVector[0]);
+    // storage.display();
+    // fin.close();
 
     // Experiment 1: 
     // Store the data (which is about IMDb movives and
@@ -84,6 +84,9 @@ int main(){
     printf("Memory used by records (MB)\t: %.5lf\n", (1.0*storage.getUsedRecordSize())/1000000);
     printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getUsedBlkSize()/1000000));
     cout << "--------------------------------------------------------------------------\n\n";
+    
+    //storage.printEveryRecordInAccessedBlock();
+    printf("Number of blocks : %d\n", storage.resetBlkAccessed());
 
     // Experiment 2: build a B+ tree on the attribute "numVotes" by
     // inserting the records sequentially and report the following statistics:

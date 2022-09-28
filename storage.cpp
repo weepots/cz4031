@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #include "storage.h"
 
 using namespace std;
@@ -50,6 +51,11 @@ Address Storage::writeRecord(int recordSize){
     //Address where our record will be write into
     Address address = {blkPtr, currentUsedBlkSize};
 
+    //Update blocks accessed
+    if(getBlkAccessed() < 5){
+        insertBlkAccessed(address);
+    }
+    
     //Update statistics
     usedRecordSize += recordSize;
     currentUsedBlkSize += recordSize;
@@ -68,19 +74,17 @@ void Storage::deleteRecord(Address address, int recordSize){
     try{
         void* recordAddress = (char *)address.blockAddress + address.offset;
         //set entire record to null
-        memset(recordAddress, '\0', recordSize );
+        memset(recordAddress, '\0', recordSize);
 
         //Update actuall storage size
         usedRecordSize =- recordSize;
         currentUsedBlkSize -= recordSize;
-        usedBlkSize -= blkNodeSize;
 
-        //
+        //If the block is empty, remove the block
         if(emptyCheck(address)){
+            usedBlkSize -= blkNodeSize;
             usedBlk--;
             availBlk++;
-
-        
         }
     }
     catch(...){
@@ -108,22 +112,29 @@ int Storage::getNumVotes(Address address){
     return temp.numVotes;
 }
 
-void Storage:: printEveryRecordInSameBlock(Address address){
-    int blkNo = (address.blockAddress - storagePtr) / blkNodeSize;
-    printf("Block Number : %d\n", blkNo);
-    for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
-        Record temp;
-        memcpy(&temp, (char*)address.blockAddress+i, sizeof(Record));
-        printf("\t%s %d\n", temp.tconst, temp.numVotes);
-    }
-    printf("\n");
-}
-
 bool Storage:: emptyCheck(Address address){
-        unsigned char emptyBlock[blkNodeSize];
+        char *emptyBlock = new char[blkNodeSize];
         memset(emptyBlock, '\0', blkNodeSize);
         bool isEmptyBlock = memcmp(emptyBlock, address.blockAddress, blkNodeSize);
         return isEmptyBlock;
+}
+
+void Storage::insertBlkAccessed(Address address){
+    int blkNo = (address.blockAddress - storagePtr) / blkNodeSize;
+    auto it = find(blkAccessed.begin(), blkAccessed.end(), blkNo);
+    if(it == blkAccessed.end()){
+        blkAccessed.push_back(blkNo);
+    }
+}
+
+int Storage::getBlkAccessed(){
+    return blkAccessed.size();
+}
+
+int Storage::resetBlkAccessed(){
+    int temp = blkAccessed.size();
+    blkAccessed.clear();
+    return temp;
 }
 
 //getters
@@ -161,6 +172,30 @@ void Storage :: display(){
     printf("No of available blocks\t\t: %d\n", availBlk);
     printf("No of used blocks\t\t: %d\n", usedBlk);
     printf("--------------------------------------------------------------\n\n");
+}
+
+void Storage::printEveryRecordInSameBlock(Address address){
+    int blkNo = (address.blockAddress - storagePtr) / blkNodeSize;
+    printf("Block Number : %d\n", blkNo);
+    for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
+        Record temp;
+        memcpy(&temp, (char*)address.blockAddress+i, sizeof(Record));
+        printf("\t%s %d\n", temp.tconst, temp.numVotes);
+    }
+    printf("\n");
+}
+
+void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
+    for(auto it : blkAccessed){
+        printf("Block Number : %d\n", it);
+        for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
+            Record temp;
+            void *recordAddress = (char *) storagePtr + it * blkNodeSize;
+            memcpy(&temp, (char*)recordAddress + i, sizeof(Record));
+            printf("\t%s %d\n", temp.tconst, temp.numVotes);
+        }
+    }
+    return;
 }
 
 char* accessTConst(Address address){

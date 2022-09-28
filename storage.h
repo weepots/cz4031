@@ -1,6 +1,10 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
+#include<vector>
+using namespace std;
+
+
 const int tconst_size = 10;
 typedef unsigned un_int;
 
@@ -35,6 +39,7 @@ private:
     //Attributes in numbers
     int availBlk; //number of unallocated blocks
     int usedBlk; //number of allocated blocks
+    vector<int> blkAccessed;
 
 public:
     //initialise class
@@ -59,9 +64,14 @@ public:
     int getNumVotes(Address address);
     void deleteRecord(Address address, int recordSize);
     bool emptyCheck(Address address);
+    void insertBlkAccessed(Address address);
+    int resetBlkAccessed();
+    int getBlkAccessed();
+    
 
     //display functionS
     void printEveryRecordInSameBlock(Address address);
+    void printEveryRecordInAccessedBlock();
     void display();
 
     //
