@@ -54,9 +54,9 @@ int main()
     {
         if (choice == 1)
         {
-            cout << "Manual mode, select action: \n 1. Insert\n 2. Delete\n 3. Exit manual mode" << endl;
+            cout << "Manual mode, select action: \n 1. Insert\n 2. Delete\n 3. Search\n 4. Search Range\n 5. Exit manual mode" << endl;
             cin >> manualOption;
-            while (manualOption != 3)
+            while (manualOption != 5)
             {
                 if (manualOption == 1)
                 {
@@ -66,7 +66,32 @@ int main()
                 {
                     tree = multipleDeletes(tree);
                 }
-                cout << "Manual mode, select action: \n 1. Insert\n 2. Delete\n 3. Exit manual mode" << endl;
+                else if (manualOption == 3)
+                {
+                    tree.displayTree();
+                    int key;
+                    cout << "Enter key:" << endl;
+                    cin >> key;
+                    Record *searched = tree.search(key);
+                    cout << "record found: " << searched->getValue() << endl;
+                }
+                else if (manualOption == 4)
+                {
+                    tree.displayTree();
+                    int lb, up;
+                    cout << "Enter lower bound (inclusive):" << endl;
+                    cin >> lb;
+                    cout << "Enter upper bound (inclusive):" << endl;
+                    cin >> up;
+                    vector<Record *> records = tree.searchRange(lb, up);
+
+                    cout << "Records found: ";
+                    for (Record *i : records)
+                    {
+                        cout << i->getValue() << " ";
+                    }
+                }
+                cout << "Manual mode, select action: \n 1. Insert\n 2. Delete\n 3. Search\n 4. Search Range\n 5. Exit manual mode" << endl;
                 cin >> manualOption;
             }
         }
