@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <storage.h>
 using namespace std;
 
 class Record
@@ -63,7 +64,19 @@ public:
     {
     }
     Node getRoot() { return *_root; }
-    void insert(Record record)
+    class BPlusTree
+{
+    Node *_root;
+    int _noOfNodes = 0;
+    int _height = 0;
+    
+
+public:
+    BPlusTree()
+    {
+    }
+    Node getRoot() { return *_root; }
+    void insert(Address record)
     {
         if (_noOfNodes == 0)
         {
@@ -81,7 +94,7 @@ public:
         {
             for (int i = 0; i < N; i++)
             {
-                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
+                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     nodeTrackerIndex++;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i];
@@ -94,7 +107,7 @@ public:
 
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= record.getValue() && i == N - 1)
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(record) && i == N - 1)
                 {
                     nodeTrackerIndex += 1;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i + 1];
@@ -120,13 +133,13 @@ public:
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
@@ -148,7 +161,7 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
@@ -187,7 +200,7 @@ public:
             {
                 if (!recordAdded)
                 {
-                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < record.getValue())
+                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(record))
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
                         recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
@@ -195,7 +208,7 @@ public:
                     }
                     else
                     {
-                        temp[i] = record.getValue();
+                        temp[i] = accessNumVotes(record);
                         recordTemp[i] = &record;
                         recordAdded = true;
                     }
