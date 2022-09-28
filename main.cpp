@@ -39,10 +39,12 @@ int main(){
     ifstream fin("data.tsv");
     string line;
     getline(fin,line); //Get rid of the first row which is column label;
+    bool first = true;
+    vector<Address> addressVector;
     while(getline(fin,line)){
         vector<string> parts;
         Record record;
-        Address dataRecordAddress;
+        Address dataAddress;
         string tempData;
         split(parts,line, boost::is_any_of("\t"));
 
@@ -51,18 +53,32 @@ int main(){
         record.avgRating = stof(parts[1]);
         record.numVotes = stof(parts[2]);
 
+        //printf("Finished breaking a line\n");
+
         //insert the record into the storage
-        storage.writeRecord(&record, sizeof(Record));
+        dataAddress = storage.writeRecord(sizeof(Record));
+        void *ptr = (char*) dataAddress.blockAddress+dataAddress.offset;
+        memcpy(ptr, &record, sizeof(Record));
+        p.push_back(dataAddress);
+        //Record *test = storage.readRecord(address, sizeof(Record));
+        //cout << test->tconst << "\n";
     }
+
+    printf("Finished inserting data.tsv\n");
+
+    Record test;
+    Address adr = p[12345];
+    memcpy(&test, (char*) adr.blockAddress+adr.offset, sizeof(test));
+    cout << test.tconst << " " << test.numVotes << "\n";
 
     storage.display();
     fin.close();
 
-// Experiment 2: build a B+ tree on the attribute "numVotes" by
-// inserting the records sequentially and report the following statistics:
-// - the parameter n of the B+ tree;
-// - the number of nodes of the B+ tree;
-// - the height of the B+ tree, i.e., the number of levels of the B+ tree;
+    // Experiment 2: build a B+ tree on the attribute "numVotes" by
+    // inserting the records sequentially and report the following statistics:
+    // - the parameter n of the B+ tree;
+    // - the number of nodes of the B+ tree;
+    // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
 
 
 // Experiment 3: retrieve those movies with the “numVotes” equal

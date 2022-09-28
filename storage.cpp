@@ -6,7 +6,6 @@ using namespace std;
 
 Storage::Storage(int storageSize, int blkNodeSize){
     //initialise pointers
-    char* storagePtr = nullptr;
     this->storagePtr = new char[storageSize]; // points to the first datablock in storage
     this->blkPtr = nullptr;
     //initialise attributes
@@ -26,17 +25,14 @@ Storage:: ~ Storage(){
 };
 
 //record functions
-Address Storage::createBlock(int recordSize){
-    //If recordSize is larger than blockSize, return error
+Address Storage::writeRecord(int recordSize){
     if (recordSize > blkNodeSize){
         cout << "Records cannot be larger than block size\n";
         throw "Records cannot be larger than block size";
     }
 
-    //If record cannot fit into current block
-    if((recordSize + currentUsedBlkSize > blkNodeSize) or (usedBlk == 0)){
-        //If there is enough space for a block, allocate it
-        if(recordSize + currentUsedBlkSize <= storageSize){
+    if(recordSize + currentUsedBlkSize > blkNodeSize || usedBlk == 0){
+        if(availBlk > 0){
             blkPtr = storagePtr + usedBlk * blkNodeSize; //Allocate location of block
             
             //Update statistics
@@ -45,7 +41,6 @@ Address Storage::createBlock(int recordSize){
             availBlk -= 1;
             usedBlk += 1;
         }
-        //Otherwise, there is not enough space in storage, throw an error
         else{
             cout << "No memory to allocate new block\n";
             throw "No memory to allocate new block\n";
@@ -62,12 +57,12 @@ Address Storage::createBlock(int recordSize){
     return address;
 };
 
-Address Storage::writeRecord(Record* record, int recordSize){
-    Address memoryAddress = createBlock(recordSize);
-    memcpy((char*) memoryAddress.blockAddress+memoryAddress.offset, record, recordSize);
-
-    return memoryAddress;
-};
+//Record* Storage::readRecord(Address address, int recordSize){
+//    void* temp = operator new(recordSize);
+//    memcpy(temp, (char *)address.blockAddress+address.offset, recordSize);
+//
+//    return temp;
+//};
 
 void Storage::deleteRecord(Address address, int recordSize){
     //get record address
@@ -131,8 +126,8 @@ void Storage :: display(){
     printf("--------------------------------------------------------------\n");
     printf("Storage size\t\t\t: %d\n", storageSize);
     printf("Block size\t\t\t: %d\n", blkNodeSize);
-    printf("Memory used by records (MB)\t: %lf\n", (1.0*usedRecordSize)/1000000);
-    printf("Memory used by blocks (MB)\t: %lf\n",  (1.0*usedBlkSize)/1000000);
+    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*usedRecordSize)/1000000);
+    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*usedBlkSize)/1000000);
     printf("Memory used by current block\t: %d\n", currentUsedBlkSize);
     printf("No of available blocks\t\t: %d\n", availBlk);
     printf("No of used blocks\t\t: %d\n", usedBlk);

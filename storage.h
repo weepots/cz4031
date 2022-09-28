@@ -1,14 +1,13 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
-const int tconst_size = 12;
+const int tconst_size = 10;
 typedef unsigned un_int;
 
 struct Record{
-    char tconst[tconst_size]; //12 byte length record ID as key
+    char tconst[tconst_size]; //10 byte length record ID as key
     float avgRating; //4 byte length
     int numVotes; // 4 byte length
-
 };
 
 struct Address{
@@ -16,19 +15,12 @@ struct Address{
     int offset;
 };
 
-struct BlkNode{
-    Address address;
-    int blkSize;
-    struct blkNode* next;
-
-    
-};
-
 class Storage{
 private:
     //Pointers
-    char* storagePtr;
-    char* blkPtr;
+    char *storagePtr;  // Pointer to the memory pool.
+    char *blkPtr; 
+
     //Attributes in bytes
     int storageSize; //storage size in bytes
     int blkNodeSize; //blk node size in bytes
@@ -56,8 +48,8 @@ public:
     int getUsedBlk();
 
     // record functions
-    Address createBlock(int recordSize);
-    Address writeRecord(Record* record, int recordSize);
+    Address writeRecord(int recordSize);
+    //void* readRecord(Address address, int recordSize);
     //Address loadrecord();
     void deleteRecord(Address address, int recordSize);
     bool emptyCheck(Address address);
