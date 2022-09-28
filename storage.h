@@ -24,8 +24,7 @@ struct BlkNode{
     
 };
 
-
-class storage{
+class Storage{
 private:
     //Pointers
     char* storagePtr;
@@ -43,9 +42,9 @@ private:
 
 public:
     //initialise class
-    storage(int storageSize, int blkNodeSize);
+    Storage(int storageSize, int blkNodeSize);
     //destroy class and clear memory
-    // ~ storage();
+    ~Storage();
 
 
     //get functions
@@ -57,14 +56,13 @@ public:
     int getUsedBlk();
 
     // record functions
-    char writeRecord(int recordSize);
+    Address createBlock(int recordSize);
+    Address writeRecord(Record* record, int recordSize);
+    //Address loadrecord();
     void deleteRecord(Address address, int recordSize);
-    bool createBlock();
     bool emptyCheck(Address address);
-    
-    
 
-
+    void display();
 };
 
 
