@@ -144,7 +144,7 @@ public:
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
                     nodeTracker[nodeTrackerIndex]->_record[i] = &record;
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
