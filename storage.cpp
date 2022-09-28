@@ -57,12 +57,11 @@ Address Storage::writeRecord(int recordSize){
     return address;
 };
 
-//Record* Storage::readRecord(Address address, int recordSize){
-//    void* temp = operator new(recordSize);
-//    memcpy(temp, (char *)address.blockAddress+address.offset, recordSize);
-//
-//    return temp;
-//};
+Record Storage::readRecord(Address address){
+    Record temp;
+    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    return temp;
+}
 
 void Storage::deleteRecord(Address address, int recordSize){
     //get record address
@@ -89,6 +88,36 @@ void Storage::deleteRecord(Address address, int recordSize){
     };
     return;
 };
+
+char* Storage::getTConst(Address address){
+    Record temp;
+    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    char *tempChar = temp.tconst;
+    return tempChar;
+}
+
+float Storage::getAvgRating(Address address){
+    Record temp;
+    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    return temp.avgRating;
+}
+
+int Storage::getNumVotes(Address address){
+    Record temp;
+    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    return temp.numVotes;
+}
+
+void Storage:: printEveryRecordInSameBlock(Address address){
+    int blkNo = (address.blockAddress - storagePtr) / blkNodeSize;
+    printf("Block Number : %d\n", blkNo);
+    for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
+        Record temp;
+        memcpy(&temp, (char*)address.blockAddress+i, sizeof(Record));
+        printf("\t%s %d\n", temp.tconst, temp.numVotes);
+    }
+    printf("\n");
+}
 
 bool Storage:: emptyCheck(Address address){
         unsigned char emptyBlock[blkNodeSize];
@@ -131,5 +160,21 @@ void Storage :: display(){
     printf("Memory used by current block\t: %d\n", currentUsedBlkSize);
     printf("No of available blocks\t\t: %d\n", availBlk);
     printf("No of used blocks\t\t: %d\n", usedBlk);
-    printf("--------------------------------------------------------------\n");
+    printf("--------------------------------------------------------------\n\n");
 }
+
+char* accessTConst(Address address){
+    void* memoryAdr = (char*) address.blockAddress+address.offset;
+    char* tempCh =  (*(Record*)memoryAdr).tconst;
+    return tempCh;
+};
+
+float accessAvgRating(Address address){
+    void* memoryAdr = (char*) address.blockAddress+address.offset;
+    return (*(Record*)memoryAdr).avgRating;
+};
+
+int accessNumVotes(Address address){
+    void* memoryAdr = (char*) address.blockAddress+address.offset;
+    return (*(Record*)memoryAdr).numVotes;
+};

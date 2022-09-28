@@ -15,6 +15,10 @@ struct Address{
     int offset;
 };
 
+char* accessTConst(Address address);
+float accessAvgRating(Address address);
+int accessNumVotes(Address address);
+
 class Storage{
 private:
     //Pointers
@@ -49,12 +53,18 @@ public:
 
     // record functions
     Address writeRecord(int recordSize);
-    //void* readRecord(Address address, int recordSize);
-    //Address loadrecord();
+    Record readRecord(Address address);
+    char* getTConst(Address address);
+    float getAvgRating(Address address);
+    int getNumVotes(Address address);
     void deleteRecord(Address address, int recordSize);
     bool emptyCheck(Address address);
 
+    //display functionS
+    void printEveryRecordInSameBlock(Address address);
     void display();
+
+    //
 };
 
 

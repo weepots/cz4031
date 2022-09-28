@@ -4,23 +4,18 @@
 #include <string>
 #include <vector>
 #include <boost/algorithm/string.hpp>
-#include "storage.h"
 #include <cstring>
+
+#include "storage.h"
 using namespace std;
 
 int main(){
-    // Experiment 1: 
-    // Store the data (which is about IMDb movives and
-    // described in Part 4) on the disk (as specified in Part 1) and report the
-    // following statistics:
-    // - the number of blocks;
-    // - the size of database (in terms of MB);
-
     int input, block_size;
     cout << "Please select a block size:\n";
     cout << "1. 200 bytes\n"; 
     cout << "2. 500 Bytes\n" ;
     cout << "3. Quit\n";
+    cout << "Option: ";
     cin >> input;
     switch (input){
         case 1:
@@ -53,26 +48,42 @@ int main(){
         record.avgRating = stof(parts[1]);
         record.numVotes = stof(parts[2]);
 
-        //printf("Finished breaking a line\n");
-
         //insert the record into the storage
         dataAddress = storage.writeRecord(sizeof(Record));
         void *ptr = (char*) dataAddress.blockAddress+dataAddress.offset;
         memcpy(ptr, &record, sizeof(Record));
-        p.push_back(dataAddress);
-        //Record *test = storage.readRecord(address, sizeof(Record));
-        //cout << test->tconst << "\n";
+        addressVector.push_back(dataAddress);
     }
 
-    printf("Finished inserting data.tsv\n");
+    //Ways to access record (Need Address)
+    Address adr = addressVector[12345];
+    printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
 
-    Record test;
-    Address adr = p[12345];
-    memcpy(&test, (char*) adr.blockAddress+adr.offset, sizeof(test));
-    cout << test.tconst << " " << test.numVotes << "\n";
+    Record rec = storage.readRecord(adr);
+    printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
 
+    void* memoryAdr = (char*) adr.blockAddress+adr.offset;
+    printf("%s \n", (*(Record*)memoryAdr).tconst);
+
+    printf("%s %f %d\n", accessTConst(adr), accessAvgRating(adr), accessNumVotes(adr));
+    //----------------------------------------------------------------------------------------------------
+
+    storage.printEveryRecordInSameBlock(addressVector[12345]);
     storage.display();
     fin.close();
+
+    // Experiment 1: 
+    // Store the data (which is about IMDb movives and
+    // described in Part 4) on the disk (as specified in Part 1) and report the
+    // following statistics:
+    // - the number of blocks;
+    // - the size of database (in terms of MB);
+    cout << "------------------------------Experiment 1--------------------------------\n";
+    printf("No of available blocks\t\t: %d\n", storage.getAvailBlk());
+    printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
+    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*storage.getUsedRecordSize())/1000000);
+    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getUsedBlkSize()/1000000));
+    cout << "--------------------------------------------------------------------------\n\n";
 
     // Experiment 2: build a B+ tree on the attribute "numVotes" by
     // inserting the records sequentially and report the following statistics:
@@ -114,10 +125,4 @@ int main(){
 
 // Re-set the block size to be 500 B and re-do Experiment 1, 2, 3, 4,
 // and 5.
-
-
-
-
-
-    cout << block_size <<endl;
 }
