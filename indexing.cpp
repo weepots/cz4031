@@ -483,6 +483,7 @@ public:
             }
         }
     }
+
     Record *search(int value)
     {
         int noOfNodes = 1, nodesPrinted = 1;
@@ -551,6 +552,7 @@ public:
         }
 
         Record *removedRecord = NULL;
+        int numNodesDeleted = 0;
 
         struct relatedNodes nodes = getLeafNode(key);
         Node *leafNode = nodes.node;
@@ -599,7 +601,10 @@ public:
             delete[] leafNode->_record;
             delete leafNode;
             _root = NULL;
-            cout << "entire tree deleted";
+            _height--;
+            cout << "entire tree deleted" << endl;
+            displayStats(++numNodesDeleted);
+
             return removedRecord;
         }
 
@@ -618,6 +623,7 @@ public:
         if (leafNode == _root || leafNode->_size >= MIN_KEYS_LEAF)
         {
             cout << "minimum met, no need to consider cases" << endl;
+            displayStats(numNodesDeleted);
             return removedRecord;
         }
 
@@ -643,12 +649,10 @@ public:
             // only direct parent will be affected.
             // will not borrow minimum key (leftmost on left sibling), so parents above will not change (? need confirm)
             parentNode->_key[leafNodeIndex - 1] = leafNode->_key[0];
-
-            return removedRecord;
         }
 
         // case 2: can borrow from right sibling
-        if (rightSiblingNode != NULL && rightSiblingNode->_size - 1 >= MIN_KEYS_LEAF)
+        else if (rightSiblingNode != NULL && rightSiblingNode->_size - 1 >= MIN_KEYS_LEAF)
         {
             cout << "remove() case 2" << endl;
             // take leftmost key from right sibling
@@ -667,12 +671,10 @@ public:
             rightSiblingNode->_record[rightSiblingNode->_size] = NULL;
 
             parentNode->_key[rightSiblingIndex - 1] = rightSiblingNode->_key[0];
-
-            return removedRecord;
         }
 
         // case 3: cannot borrow from either, merge with left sibling
-        if (leftSiblingNode != NULL)
+        else if (leftSiblingNode != NULL)
         {
             cout << "remove() case 3" << endl;
             int j = leftSiblingNode->_size; // current index for left sibling
@@ -691,15 +693,14 @@ public:
             delete[] leafNode->_record;
             delete leafNode;
             cout << "leaf node merged with left sibling" << endl;
+            numNodesDeleted++;
 
             // decrease num keys/ptrs in parent node, need to update parent nodes recursively
-            removeInternal(parentNode, leafNodeIndex);
-
-            return removedRecord;
+            removeInternal(parentNode, leafNodeIndex, numNodesDeleted);
         }
 
         // ? case 4: cannot borrow, no left sibling, merge with right sibling
-        if (rightSiblingNode != NULL)
+        else if (rightSiblingNode != NULL)
         {
             cout << "remove() case 4" << endl;
             int j = leafNode->_size;
@@ -718,15 +719,19 @@ public:
             delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
             cout << "leaf node merged with right sibling" << endl;
-            removeInternal(parentNode, rightSiblingIndex);
+            numNodesDeleted++;
 
-            return removedRecord;
+            removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
         }
+
+        displayStats(numNodesDeleted);
+
+        return removedRecord;
     }
 
     // if child node is deleted, need to check if still have sufficient keys. if not, borrow from/merge w sibling
     // internalNode: parent node of deleted child node
-    void removeInternal(Node *internalNode, int removedChildIndex)
+    void removeInternal(Node *internalNode, int removedChildIndex, int &numNodesDeleted)
     {
         // cout << "running removeInternal( " << internalNode << ", " << removedChildIndex << " )" << endl;
         // special case: if internalNode is the root, and has no keys (aka < 2 ptrs) after deletion, remove root
@@ -749,6 +754,7 @@ public:
             delete[] internalNode->_record;
             delete internalNode;
             cout << "root node deleted" << endl;
+            numNodesDeleted++;
             return;
         }
 
@@ -827,10 +833,9 @@ public:
                 rightSiblingNode->_key[i] = rightSiblingNode->_key[i + 1];
                 rightSiblingNode->_pointer[i] = rightSiblingNode->_pointer[i + 1];
             }
-            rightSiblingNode->_pointer[rightSiblingNode->_size] = rightSiblingNode->_pointer[rightSiblingNode->_size + 1]; // check this
             rightSiblingNode->_size--;
             rightSiblingNode->_key[rightSiblingNode->_size] = NULL;
-            leftSiblingNode->_pointer[rightSiblingNode->_size + 1] = NULL;
+            rightSiblingNode->_pointer[rightSiblingNode->_size + 1] = NULL;
 
             return;
         }
@@ -857,7 +862,8 @@ public:
             delete[] internalNode->_record;
             delete internalNode;
             cout << "internal node merged with left sibling";
-            removeInternal(parentNode, internalNodeIndex);
+            numNodesDeleted++;
+            removeInternal(parentNode, internalNodeIndex, numNodesDeleted);
 
             return;
         }
@@ -884,7 +890,8 @@ public:
             delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
             cout << "internal node merged with right sibling";
-            removeInternal(parentNode, rightSiblingIndex);
+            numNodesDeleted++;
+            removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
 
             return;
         }
@@ -1054,6 +1061,14 @@ public:
         // try to find first leaf node with key >= LB. try == LB first
         while (!cur->_leafNode)
         {
+            numIndexNodesAccessed++;
+            if (numIndexNodesAccessed <= NUM_NODES_TO_DISPLAY)
+            {
+                // print content of current index block
+                cout << "#" << numIndexNodesAccessed << ": ";
+                displayInternalNode(cur);
+            }
+
             int i;
             bool found = false; // if ptr < any key, found is true. else, use last ptr
             for (i = 0; i < cur->_size; i++)
@@ -1064,48 +1079,33 @@ public:
                     break;
                 }
             }
-
-            numIndexNodesAccessed++;
-            if (numIndexNodesAccessed <= NUM_NODES_TO_DISPLAY)
-            {
-                int j;
-                // print content of current index block
-                cout << "Index block #" << numIndexNodesAccessed + 1 << " accessed:";
-                for (int j = 0; j < cur->_size; j++)
-                {
-                    cout << " | " << cur->_pointer[j] << " | " << cur->_key[j];
-                }
-                cout << " | " << cur->_pointer[j + 1] << endl;
-            }
-            cur = (found) ? cur->_pointer[i] : cur->_pointer[i + 1];
+            cur = cur->_pointer[i]; // check
+            // cur = (found) ? cur->_pointer[i] : cur->_pointer[i + 1];
         }
 
         // check if leaf node actually has key >= LB. if not, start result from next node
         bool upperFound = false;
-        while (!upperFound)
+        while (!upperFound && cur != NULL)
         {
+            numIndexNodesAccessed++;
+            if (numIndexNodesAccessed <= NUM_NODES_TO_DISPLAY)
+            {
+                // print content of current index block
+                cout << "#" << numIndexNodesAccessed << ": ";
+                displayLeafNode(cur);
+            }
+
             for (int i = 0; i < cur->_size; i++)
             {
-                if (lower <= cur->_key[i] <= upper)
+                if (cur->_key[i] >= lower && cur->_key[i] <= upper)
                 {
                     records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
                 {
                     upperFound = true;
+                    break;
                 }
-            }
-
-            numIndexNodesAccessed++;
-            if (numIndexNodesAccessed <= NUM_NODES_TO_DISPLAY)
-            {
-                // print content of current index block
-                cout << "Index block (leaf) #" << numIndexNodesAccessed + 1 << " accessed:";
-                for (int i = 0; i < cur->_size; i++)
-                {
-                    cout << " | " << cur->_record[i] << " | " << cur->_key[i];
-                }
-                cout << " | nextNode:" << cur->_nextNode << endl;
             }
             cur = cur->_nextNode;
         }
@@ -1113,6 +1113,61 @@ public:
         cout << "Total number of Index Blocks accessed: " << numIndexNodesAccessed << endl;
         cout << "Number of records found: " << records.size() << endl;
         return records;
+    }
+
+    void displayStats(int numNodesDeleted)
+    {
+        cout << "Number of nodes deleted: " << numNodesDeleted << endl;
+        cout << "Number of nodes in updated B+ tree: " << countTreeNodes() << endl;
+        cout << "Height of B+ tree: " << _height << endl;
+        if (_height == 0)
+        {
+            cout << "No root node. No child node." << endl;
+        }
+        else
+        {
+            cout << "Content of root node: " << endl;
+            displayInternalNode(_root);
+            if (_height == 1)
+            {
+                cout << "No child node." << endl;
+            }
+            else if (_height == 2)
+            {
+                cout << "Content of 1st child node: " << endl;
+                displayLeafNode(_root->_pointer[0]);
+            }
+            else
+            {
+                cout << "Content of 1st child node: " << endl;
+                displayInternalNode(_root->_pointer[0]);
+            }
+        }
+    }
+
+    int countTreeNodes()
+    {
+        Node *cur = _root;
+        std::queue<Node *> queue;
+        int numNodes = 0;
+
+        queue.push(_root);
+        while (cur != NULL && !queue.empty())
+        {
+            cur = queue.front();
+            queue.pop();
+            numNodes++;
+            if (cur->_leafNode)
+            {
+                continue;
+            }
+            for (int i = 0; i < cur->_size + 1; i++)
+            {
+                queue.push(cur->_pointer[i]);
+            }
+        }
+
+        return numNodes;
     }
 
     void displayTree()
