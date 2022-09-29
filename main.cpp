@@ -6,7 +6,7 @@
 #include <cstring>
 
 #include "storage.h"
-#include "indexing.cpp"
+//#include "indexing.cpp"
 using namespace std;
 
 int main(){
@@ -53,12 +53,13 @@ int main(){
         //cout << record.tconst << " "  << record.avgRating << " " << record.numVotes << "\n";;
 
         //insert the record into the storage
+        //cout << "Failed \n";
         dataAddress = storage.writeRecord(record, sizeof(Record));
         //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
-    // storage.deleteRecord(addressVector[1], sizeof(Record));
-    // storage.printEveryRecordInAccessedBlock();
+    storage.deleteRecord(&addressVector[1], sizeof(Record));
+    storage.printEveryRecordInAccessedBlock();
 
     // Record temp;
     // temp.avgRating = 7.2;
@@ -68,16 +69,16 @@ int main(){
     // storage.writeRecord(temp, sizeof(Record));
     // storage.printEveryRecordInAccessedBlock();
     //Ways to access record (Need Address)
-    // Address adr = addressVector[0];
-    // printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
+    Address adr = addressVector[0];
+    printf("%s %f %d\n", storage.getTConst(&adr), storage.getAvgRating(&adr), storage.getNumVotes(&adr));
 
-    // Record rec = storage.readRecord(adr);
-    // printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
+    Record rec = storage.readRecord(&adr);
+    printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
 
-    // void* memoryAdr = (char*) adr.blockAddress+adr.offset;
-    // printf("%s \n", (*(Record*)memoryAdr).tconst);
+    void* memoryAdr = (char*) adr.blockAddress+adr.offset;
+    printf("%s \n", (*(Record*)memoryAdr).tconst);
 
-    // printf("%s %f %d\n", accessTConst(adr), accessAvgRating(adr), accessNumVotes(adr));
+    printf("%s %f %d\n", accessTConst(&adr), accessAvgRating(&adr), accessNumVotes(&adr));
     // //----------------------------------------------------------------------------------------------------
 
     //storage.printEveryRecordInAccessedBlock();
@@ -98,7 +99,7 @@ int main(){
     printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getTotalUsedBlkSize()/1000000));
     cout << "--------------------------------------------------------------------------\n\n";
     
-    storage.printEveryRecordInAccessedBlock();
+    //storage.printEveryRecordInAccessedBlock();
     printf("Number of blocks : %d\n", storage.resetBlkAccessed());
 
     // Experiment 2: build a B+ tree on the attribute "numVotes" by
@@ -106,25 +107,27 @@ int main(){
     // - the parameter n of the B+ tree;
     // - the number of nodes of the B+ tree;
     // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
-    BPlusTree tree;
-    for(auto it : addressVector){
-        tree.insert(it);
-        //cout << storage.getNumVotes(it) << "\n";
-        //cout << "inserting....." << "\n";
-        //tree.displayTree();
-    }
-    cout << "Done inserting" << "\n";
-    //tree.displayTree();
+    // BPlusTree tree;
+    // int i  = 0;
+    // for(auto it : addressVector){
+    //     tree.insert(it);
+    //     //cout << storage.getNumVotes(it) << "\n";
+    //     //cout << "inserting....." << "\n";
+    //     //tree.displayTree();
+    //     cout << i++ << "\n";
+    // }
+    // cout << "Done inserting" << "\n";
+    // //tree.displayTree();
 
-    int numNode = 0;
-    for(auto it : addressVector){
-        cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
-        tree.remove(storage.getNumVotes(it), numNode);
-        //tree.displayTree();
-    }
+    // int numNode = 0;
+    // for(auto it : addressVector){
+    //     cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
+    //     tree.remove(storage.getNumVotes(it), numNode);
+    //     //tree.displayTree();
+    // }
 
-    cout << "Done removing" << "\n";
-    tree.displayTree();
+    // cout << "Done removing" << "\n";
+    // tree.displayTree();
 
     // int numNode = 5;
     // Address* tempAddress = tree.remove(1807, numNode);

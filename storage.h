@@ -22,9 +22,9 @@ struct Address{
     int offset;
 };
 
-char* accessTConst(Address address);
-float accessAvgRating(Address address);
-int accessNumVotes(Address address);
+char* accessTConst(Address *address);
+float accessAvgRating(Address *address);
+int accessNumVotes(Address *address);
 
 class Storage{
 private:
@@ -38,7 +38,7 @@ private:
     int currentUsedBlkSize; //current used blk size in bytes
     int totalUsedBlkSize; //total used block size
     int totalUsedRecordSize; //total used record size
-    vector<Address> deletedAddress; // vector that stores address where a record has been deleted
+    vector<Address *> deletedAddress; // vector that stores address where a record has been deleted
 
     //Attributes in numbers
     int availBlk; //number of unallocated blocks
@@ -59,18 +59,18 @@ public:
     int getTotalUsedRecordSize();
     int getAvailBlk();
     int getUsedBlk();
-    int getBlkNo(Address address);
+    int getBlkNo(Address *address);
 
     // record functions
     Address writeRecord(Record& record, int recordSize);
-    Record readRecord(Address address);
-    char* getTConst(Address address);
-    float getAvgRating(Address address);
-    int getNumVotes(Address address);
-    bool getDeleted(Address address);
-    void deleteRecord(Address address, int recordSize);
-    bool emptyCheck(Address address);
-    void insertBlkAccessed(Address address);
+    Record readRecord(Address *address);
+    char* getTConst(Address *address);
+    float getAvgRating(Address *address);
+    int getNumVotes(Address *address);
+    bool getDeleted(Address *address);
+    void deleteRecord(Address *address, int recordSize);
+    bool emptyCheck(Address *address);
+    void insertBlkAccessed(Address *address);
     int resetBlkAccessed();
     int getBlkAccessed();
     

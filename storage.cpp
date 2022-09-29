@@ -8,6 +8,7 @@ using namespace std;
 Storage::Storage(int storageSize, int blkNodeSize){
     //initialise pointers
     this->storagePtr = new char[storageSize]; // points to the first datablock in storage
+    memset(storagePtr, '\0', storageSize);
     this->blkPtr = nullptr;
     //initialise attributes
     this->storageSize = storageSize;
@@ -38,7 +39,7 @@ Address Storage::writeRecord(Record& record, int recordSize){
 
     //Update the memory location where address has been deleted
     if(!deletedAddress.empty()){
-        address = deletedAddress.back();
+        address = *(deletedAddress.back());
         deletedAddress.pop_back();
 
         //Insert the record in storage
@@ -47,7 +48,7 @@ Address Storage::writeRecord(Record& record, int recordSize){
 
         //Update blocks accessed
         if(getBlkAccessed() < 5){
-            insertBlkAccessed(address);
+            insertBlkAccessed(&address);
         }
         //Update statistics
         totalUsedRecordSize += recordSize;
@@ -80,7 +81,8 @@ Address Storage::writeRecord(Record& record, int recordSize){
     }
 
     //Address where our record will be write into
-    address = {blkPtr, currentUsedBlkSize};
+    address.blockAddress = blkPtr;
+    address.offset = currentUsedBlkSize;
 
     //Insert the record in storage
     void *ptr = (char*) address.blockAddress+address.offset;
@@ -88,7 +90,7 @@ Address Storage::writeRecord(Record& record, int recordSize){
 
     //Update blocks accessed
     if(getBlkAccessed() < 5){
-        insertBlkAccessed(address);
+        insertBlkAccessed(&address);
     }
     
     //Update statistics
@@ -98,24 +100,24 @@ Address Storage::writeRecord(Record& record, int recordSize){
     return address;
 };
 
-Record Storage::readRecord(Address address){
+Record Storage::readRecord(Address *address){
     Record temp;
-    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
     return temp;
 }
 
-void Storage::deleteRecord(Address address, int recordSize){
+void Storage::deleteRecord(Address *address, int recordSize){
     //get record address
     try{
         Record temp = readRecord(address);
         temp.deleted = true; //Set the deleted status to true;
-        void *ptr = (char*) address.blockAddress+address.offset;
+        void *ptr = (char*) address->blockAddress+address->offset;
         memcpy(ptr, &temp, sizeof(Record));
         deletedAddress.push_back(address);
       
         //Update actual storage size
         totalUsedRecordSize -= recordSize;
-        if( (char*)address.blockAddress == blkPtr){
+        if( (char*)address->blockAddress == blkPtr){
             currentUsedBlkSize -= recordSize;
         }
 
@@ -132,9 +134,9 @@ void Storage::deleteRecord(Address address, int recordSize){
     return;
 };
 
-char* Storage::getTConst(Address address){
+char* Storage::getTConst(Address *address){
     Record temp;
-    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
     char *tempChar = temp.tconst;
 
     insertBlkAccessed(address);
@@ -142,42 +144,42 @@ char* Storage::getTConst(Address address){
     return tempChar;
 }
 
-float Storage::getAvgRating(Address address){
+float Storage::getAvgRating(Address *address){
     Record temp;
-    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
 
     insertBlkAccessed(address);
 
     return temp.avgRating;
 }
 
-int Storage::getNumVotes(Address address){
+int Storage::getNumVotes(Address *address){
     Record temp;
-    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
 
     insertBlkAccessed(address);
 
     return temp.numVotes;
 }
 
-bool Storage::getDeleted(Address address){
+bool Storage::getDeleted(Address *address){
     Record temp;
-    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+    memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
 
     insertBlkAccessed(address);
 
     return temp.deleted;
 }
 
-bool Storage:: emptyCheck(Address address){
+bool Storage:: emptyCheck(Address * address){
     char *emptyBlock = new char[blkNodeSize];
     memset(emptyBlock, '\0', blkNodeSize);
-    bool isEmptyBlock = memcmp(emptyBlock, address.blockAddress, blkNodeSize);
+    bool isEmptyBlock = memcmp(emptyBlock, address->blockAddress, blkNodeSize);
     return isEmptyBlock;
 }
 
-void Storage::insertBlkAccessed(Address address){
-    int blkNo = (address.blockAddress - storagePtr) / blkNodeSize;
+void Storage::insertBlkAccessed(Address *address){
+    int blkNo = (address->blockAddress - storagePtr) / blkNodeSize;
     auto it = find(blkAccessed.begin(), blkAccessed.end(), blkNo);
     if(it == blkAccessed.end()){
         blkAccessed.push_back(blkNo);
@@ -219,8 +221,8 @@ int Storage :: getAvailBlk(){
     return availBlk;
 }
 
-int Storage :: getBlkNo(Address address){
-    return (address.blockAddress - storagePtr) / blkNodeSize;
+int Storage :: getBlkNo(Address *address){
+    return (address->blockAddress - storagePtr) / blkNodeSize;
 }
 
 void Storage :: display(){
@@ -269,18 +271,18 @@ void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
     return;
 }
 
-char* accessTConst(Address address){
-    void* memoryAdr = (char*) address.blockAddress+address.offset;
+char* accessTConst(Address *address){
+    void* memoryAdr = (char*) address->blockAddress+address->offset;
     char* tempCh =  (*(Record*)memoryAdr).tconst;
     return tempCh;
 };
 
-float accessAvgRating(Address address){
-    void* memoryAdr = (char*) address.blockAddress+address.offset;
+float accessAvgRating(Address *address){
+    void* memoryAdr = (char*) address->blockAddress+address->offset;
     return (*(Record*)memoryAdr).avgRating;
 };
 
-int accessNumVotes(Address address){
-    void* memoryAdr = (char*) address.blockAddress+address.offset;
+int accessNumVotes(Address *address){
+    void* memoryAdr = (char*) address->blockAddress+address->offset;
     return (*(Record*)memoryAdr).numVotes;
 };
