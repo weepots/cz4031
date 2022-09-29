@@ -52,7 +52,7 @@ public:
     {
         _key = new int[N];
         _pointer = new Node *[N + 1];
-        _record = new Address *[N];
+        _record = new Address* [N];
 
         for (int i = 0; i < N; i++)
         {
