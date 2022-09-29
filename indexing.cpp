@@ -104,11 +104,6 @@ public:
             {
                 emptySpace = true;
             }
-            /*if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
-            {
-                *(nodeTracker[nodeTrackerIndex]->_record[i]) = &record;
-                return;
-            }*/
         }
 
         if (emptySpace)
@@ -121,6 +116,7 @@ public:
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(*record);
                     nodeTracker[nodeTrackerIndex]->_record[i] = record;
+                    //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
@@ -129,7 +125,6 @@ public:
                 {
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                     nodeTracker[nodeTrackerIndex]->_record[i] = record;
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(*record);
                     nodeTracker[nodeTrackerIndex]->_size++;
@@ -173,6 +168,7 @@ public:
                 }
             }
             _noOfNodes++;
+            //printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
         else
