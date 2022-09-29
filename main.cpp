@@ -109,20 +109,19 @@ int main(){
     BPlusTree tree;
     for(auto it : addressVector){
         tree.insert(it);
+        //cout << storage.getNumVotes(it) << "\n";
         //cout << "inserting....." << "\n";
         //tree.displayTree();
     }
     cout << "Done inserting" << "\n";
-    tree.displayTree();
-    int numNode = 5;
+    //tree.displayTree();
 
-    tree.testDisplayLeafNode();
-    // /for(auto it : addressVector){
-    //     cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
-    //     tree.remove(storage.getNumVotes(it), numNode);
-    //     tree.testDisplayLeafNode();
-    //     //tree.displayTree();
-    // }
+    int numNode = 0;
+    for(auto it : addressVector){
+        cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
+        tree.remove(storage.getNumVotes(it), numNode);
+        //tree.displayTree();
+    }
 
     cout << "Done removing" << "\n";
     tree.displayTree();
@@ -131,8 +130,8 @@ int main(){
     // Address* tempAddress = tree.remove(1807, numNode);
     // printf("Actual address : %p %d with %d \n", (char*) addressVector[7].blockAddress+addressVector[7].offset, addressVector[7].offset, storage.getNumVotes(addressVector[7]));
     // printf("Output address : %p %d\n", (char*) (*tempAddress).blockAddress + (*tempAddress).offset, tempAddress->offset);
-    //Record temp = storage.readRecord(*tempAddress);
-    //cout << temp.tconst << " " << temp.numVotes << "\n";
+    // Record temp = storage.readRecord(*tempAddress);
+    // cout << temp.tconst << " " << temp.numVotes << "\n";
 
 
     //tree.displayTree();

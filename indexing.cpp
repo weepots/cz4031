@@ -5,24 +5,6 @@
 #include <queue>
 using namespace std;
 
-class Record
-{
-    int value;
-
-public:
-    Record(int val)
-    {
-        value = val;
-    }
-    Record()
-    {
-        value = 0;
-    }
-    int getValue()
-    {
-        return value;
-    }
-};
 
 const int N = 3;
 const int MIN_KEYS_LEAF = (N + 1) / 2;
@@ -41,7 +23,7 @@ class Node
     // pointer to next node, if any
     Node *_nextNode = NULL;
     // list of pointers to records(this will be empty if it is a leaf node)
-    Address *_record;
+    Address **_record;
     // actual number of keys
     int _size = 0;
 
@@ -52,7 +34,7 @@ public:
     {
         _key = new int[N];
         _pointer = new Node *[N + 1];
-        _record = new Address* [N];
+        _record = new Address*[N];
 
         for (int i = 0; i < N; i++)
         {
