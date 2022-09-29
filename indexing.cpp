@@ -40,7 +40,8 @@ class Node
     // pointer to next node, if any
     Node *_nextNode = NULL;
     // list of pointers to records(this will be empty if it is a leaf node)
-    Record **_record;
+    std::vector<Record *> *_record; // pointer to list of vectors containing pointers to records
+    // Record **_record;
     // actual number of keys
     int _size = 0;
 
@@ -51,7 +52,8 @@ public:
     {
         _key = new int[N];
         _pointer = new Node *[N + 1];
-        _record = new Record *[N];
+        _record = new vector<Record *>[N];
+        // _record = new Record *[N];
 
         for (int i = 0; i < N; i++)
         {
@@ -121,18 +123,23 @@ public:
             {
                 emptySpace = true;
             }
+            if (nodeTracker[nodeTrackerIndex]->_key[i] == record.getValue())
+            {
+                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                return;
+            }
         }
 
         if (emptySpace)
         {
             int temp1, temp2;
-            Record *r1, *r2, t;
+            vector<Record *> *r1, *r2, t;
             for (int i = 0; i < N; i++)
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    nodeTracker[nodeTrackerIndex]->_record[i].push_back(&record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
@@ -141,7 +148,10 @@ public:
                 {
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    vector<Record *> emptyVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
                     nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
@@ -160,7 +170,8 @@ public:
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
 
@@ -189,7 +200,8 @@ public:
         else
         {
             int temp[N + 1];
-            Record *recordTemp[N + 1];
+            // Record *recordTemp[N + 1];
+            std::vector<Record *> *recordTemp = new vector<Record *>[N + 1];
             int floorVal = floor((N + 1) / 2);
             int ceilVal = ceil((N + 1) / 2);
             bool recordAdded = false;
@@ -207,7 +219,8 @@ public:
                     else
                     {
                         temp[i] = record.getValue();
-                        recordTemp[i] = &record;
+                        recordTemp[i].push_back(&record);
+                        // recordTemp[i] = &record;
                         recordAdded = true;
                     }
                 }
@@ -236,7 +249,9 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    vector<Record *> emptyVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -250,7 +265,9 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    newNode->_record[i] = NULL;
+                    // newNode->_record[i] = NULL;
+                    vector<Record *> emptyVector;
+                    newNode->_record[i] = emptyVector;
                 }
             }
         }
@@ -531,7 +548,7 @@ public:
                 printf("%d, ", cursor->_key[i]);
                 if (cursor->_key[i] == value)
                 {
-                    result = cursor->_record[i];
+                    result = cursor->_record[i].front();
                 }
             }
         }
@@ -543,7 +560,7 @@ public:
     // removes first record with matched key from b+ tree, updates b+ tree, returns address of record removed
     // record is not actually removed from memory yet
     // idk if can yet, but try return reference of record, not found return nothing
-    Record *remove(int key)
+    Record *remove(int key, int &numNodesDeleted)
     {
         if (_root == NULL)
         {
@@ -552,7 +569,7 @@ public:
         }
 
         Record *removedRecord = NULL;
-        int numNodesDeleted = 0;
+        // int numNodesDeleted = 0;
 
         struct relatedNodes nodes = getLeafNode(key);
         Node *leafNode = nodes.node;
@@ -582,16 +599,30 @@ public:
 
         // delete the key at leaf node (check if underflow -> can borrow from sibling, cannot borrow from sibling), update parents recursively
 
-        // delete key at leaf node
-        removedRecord = leafNode->_record[keyIndex];
-        for (int i = keyIndex; i < leafNode->_size; i++)
+        // check vector: if points to >1 record, just remove duplicate. if point to 1 record, delete key
+        if (leafNode->_record[keyIndex].size() > 1)
         {
-            leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
-            leafNode->_record[i] = leafNode->_record[i + 1];
+            // duplicate key, no need to remove key in B+ tree, just remove duplicate
+            removedRecord = (leafNode->_record[keyIndex]).front();
+            leafNode->_record[keyIndex].erase(leafNode->_record[keyIndex].begin()); // remove first record
+            displayStats(numNodesDeleted);
+
+            return removedRecord;
         }
-        leafNode->_size--;
-        leafNode->_key[leafNode->_size] = NULL;
-        leafNode->_record[leafNode->_size] = NULL;
+        else
+        {
+            // delete key at leaf node
+            removedRecord = leafNode->_record[keyIndex].front();
+            for (int i = keyIndex; i < leafNode->_size; i++)
+            {
+                leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
+                leafNode->_record[i] = leafNode->_record[i + 1];
+            }
+            leafNode->_size--;
+            leafNode->_key[leafNode->_size] = NULL;
+            vector<Record *> emptyVector;
+            leafNode->_record[leafNode->_size] = emptyVector;
+        }
 
         // if only 1 level tree, and last key deleted, entire tree is deleted
         if (leafNode == _root && leafNode->_size == 0)
@@ -644,7 +675,8 @@ public:
 
             leftSiblingNode->_size--;
             leftSiblingNode->_key[leftSiblingNode->_size] = NULL;
-            leftSiblingNode->_record[leftSiblingNode->_size] = NULL;
+            vector<Record *> emptyVector;
+            leftSiblingNode->_record[leftSiblingNode->_size] = emptyVector;
 
             // only direct parent will be affected.
             // will not borrow minimum key (leftmost on left sibling), so parents above will not change (? need confirm)
@@ -668,7 +700,8 @@ public:
             }
             rightSiblingNode->_size--;
             rightSiblingNode->_key[rightSiblingNode->_size] = NULL;
-            rightSiblingNode->_record[rightSiblingNode->_size] = NULL;
+            vector<Record *> emptyVector;
+            rightSiblingNode->_record[rightSiblingNode->_size] = emptyVector;
 
             parentNode->_key[rightSiblingIndex - 1] = rightSiblingNode->_key[0];
         }
@@ -1043,21 +1076,25 @@ public:
     }
 
     // inclusive on both lower bound and upper bound
-    vector<Record *> searchRange(int lower, int upper)
+    void searchRange(int lower, int upper)
     {
-        std::vector<Record *> records = {};
+        // std::vector<Record *> records = {};
 
         if (_root == NULL)
         {
             cout << "B+ tree is empty";
-            return records;
+            return;
+            // return records;
         }
 
         Node *cur = _root;
         int numIndexNodesAccessed = 0;
+        int numFound = 0;
+        int foundTotal = 0;
 
         // ptr1 key1 ptr2 key2 ptr3 key3 ptr4
 
+        cout << "\nContent of first 5 index nodes:" << endl;
         // try to find first leaf node with key >= LB. try == LB first
         while (!cur->_leafNode)
         {
@@ -1099,7 +1136,11 @@ public:
             {
                 if (cur->_key[i] >= lower && cur->_key[i] <= upper)
                 {
-                    records.push_back(cur->_record[i]);
+                    numFound = numFound + cur->_record[i].size();
+                    foundTotal = foundTotal + cur->_key[i] * cur->_record[i].size(); // check these
+                    // numFound++;
+                    // foundTotal = foundTotal + cur->_key[i];
+                    // records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
                 {
@@ -1111,8 +1152,11 @@ public:
         }
 
         cout << "Total number of Index Blocks accessed: " << numIndexNodesAccessed << endl;
-        cout << "Number of records found: " << records.size() << endl;
-        return records;
+        cout << "\nContent of first 5 data blocks: TODO" << endl;
+
+        cout << "Number of records found: " << numFound << endl;
+        cout << "Average rating: " << (float)foundTotal / numFound << endl;
+        return;
     }
 
     void displayStats(int numNodesDeleted)
@@ -1254,7 +1298,7 @@ public:
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << node->_record[i] << " | " << node->_key[i];
+            cout << " | " << &(node->_record[i]) << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;
 
