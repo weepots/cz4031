@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include "storage.h"
+#include "indexing.cpp"
 using namespace std;
 
 int main(){
@@ -28,7 +29,6 @@ int main(){
     }
 
     Storage storage(300000000, block_size);
-    vector <Address> data;
 
     ifstream fin("data.tsv");
     string line;
@@ -57,16 +57,16 @@ int main(){
         //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
-    storage.deleteRecord(addressVector[1], sizeof(Record));
-    storage.printEveryRecordInAccessedBlock();
+    // storage.deleteRecord(addressVector[1], sizeof(Record));
+    // storage.printEveryRecordInAccessedBlock();
 
-    Record temp;
-    temp.avgRating = 7.2;
-    temp.numVotes = 1111;
-    temp.deleted = false;
+    // Record temp;
+    // temp.avgRating = 7.2;
+    // temp.numVotes = 1111;
+    // temp.deleted = false;
 
-    storage.writeRecord(temp, sizeof(Record));
-    storage.printEveryRecordInAccessedBlock();
+    // storage.writeRecord(temp, sizeof(Record));
+    // storage.printEveryRecordInAccessedBlock();
     //Ways to access record (Need Address)
     // Address adr = addressVector[0];
     // printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
@@ -98,7 +98,7 @@ int main(){
     printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getTotalUsedBlkSize()/1000000));
     cout << "--------------------------------------------------------------------------\n\n";
     
-    //storage.printEveryRecordInAccessedBlock();
+    storage.printEveryRecordInAccessedBlock();
     printf("Number of blocks : %d\n", storage.resetBlkAccessed());
 
     // Experiment 2: build a B+ tree on the attribute "numVotes" by
@@ -106,6 +106,23 @@ int main(){
     // - the parameter n of the B+ tree;
     // - the number of nodes of the B+ tree;
     // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
+    BPlusTree tree;
+    for(auto it : addressVector){
+        tree.insert(it);
+        //cout << "inserting....." << "\n";
+        //tree.displayTree();
+    }
+    cout << "Done inserting" << "\n";
+    tree.displayTree();
+
+    // int numNode = 5;
+    // tree.remove(10287, numNode);
+
+    // tree.displayTree();
+    // tree.displayStats(5);
+
+
+    
 
 
 // Experiment 3: retrieve those movies with the “numVotes” equal

@@ -14,6 +14,7 @@ struct Record{
     char tconst[tconst_size] = "dummy"; //10 bytes length record ID as key
     bool deleted = true; //1 bytes length
 };
+
 //Size of record should be 19 but because of memory positioning. Record will be a 20bytes struct
 
 struct Address{
