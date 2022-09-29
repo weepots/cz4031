@@ -1,6 +1,8 @@
 #include <iostream>
 #include <math.h>
 #include <storage.h>
+#include <vector>
+#include <queue>
 using namespace std;
 
 class Record
@@ -23,19 +25,24 @@ public:
 };
 
 const int N = 3;
+const int MIN_KEYS_LEAF = (N + 1) / 2;
+const int MIN_KEYS_INTERNAL = N / 2;
+const int NUM_NODES_TO_DISPLAY = 5;
+
+// g++ -o main.exe indexing.cpp main.cpp
 
 class Node
 {
     bool _leafNode;
     // list of keys
-    int _key[N];
+    int *_key;
     // list of pointers to other nodes
-    Node *_pointer[N + 1];
+    Node **_pointer;
     // pointer to next node, if any
     Node *_nextNode = NULL;
     // list of pointers to records(this will be empty if it is a leaf node)
-    Record *_record[N];
-
+    Address **_record;
+    // actual number of keys
     int _size = 0;
 
     friend class BPlusTree;
@@ -43,6 +50,9 @@ class Node
 public:
     Node()
     {
+        _key = new int[N];
+        _pointer = new Node *[N + 1];
+        _record = new Address *[N];
 
         for (int i = 0; i < N; i++)
         {
@@ -59,10 +69,10 @@ class BPlusTree
     int _noOfNodes = 0;
     int _height = 0;
 
-
 public:
     BPlusTree()
     {
+        _root = NULL;
     }
     Node getRoot() { return *_root; }
     void insert(Address record)
@@ -114,8 +124,8 @@ public:
             }
             if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
-                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
-                    return;
+                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                return;
             }
         }
 
@@ -186,7 +196,7 @@ public:
         else
         {
             int temp[N + 1];
-            std::vector<Address *> *recordTemp = new vector<Address *> [N + 1];
+            std::vector<Address *> *recordTemp = new vector<Address *>[N + 1];
             int floorVal = floor((N + 1) / 2);
             int ceilVal = ceil((N + 1) / 2);
             bool recordAdded = false;
@@ -233,7 +243,7 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] =  new vector<Address *>;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = new vector<Address *>;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -247,7 +257,7 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    newNode->_record[i] =  new vector<Address *>;
+                    newNode->_record[i] = new vector<Address *>;
                 }
             }
         }
@@ -481,10 +491,10 @@ public:
         }
     }
 
-    Record *search(int value)
+    Address *search(int value)
     {
         int noOfNodes = 1, nodesPrinted = 1;
-        Record *result;
+        Address *result;
         Node *cursor = _root;
 
         while (!cursor->_leafNode)
@@ -540,7 +550,7 @@ public:
     // removes first record with matched key from b+ tree, updates b+ tree, returns address of record removed
     // record is not actually removed from memory yet
     // idk if can yet, but try return reference of record, not found return nothing
-    Record *remove(int key)
+    Address *remove(int key, int &numNodesDeleted)
     {
         if (_root == NULL)
         {
@@ -548,8 +558,8 @@ public:
             return NULL;
         }
 
-        Record *removedRecord = NULL;
-        int numNodesDeleted = 0;
+        Address *removedRecord = NULL;
+        // int numNodesDeleted = 0;
 
         struct relatedNodes nodes = getLeafNode(key);
         Node *leafNode = nodes.node;
@@ -578,14 +588,13 @@ public:
         }
 
         // delete the key at leaf node (check if underflow -> can borrow from sibling, cannot borrow from sibling), update parents recursively
-
-        // delete key at leaf node
         removedRecord = leafNode->_record[keyIndex];
         for (int i = keyIndex; i < leafNode->_size; i++)
         {
             leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
             leafNode->_record[i] = leafNode->_record[i + 1];
         }
+
         leafNode->_size--;
         leafNode->_key[leafNode->_size] = NULL;
         leafNode->_record[leafNode->_size] = NULL;
@@ -658,7 +667,7 @@ public:
             leafNode->_size++;
 
             // shift all keys and ptrs in right sibling to left (fill space left by moved key/ptr)
-            for (int i = 0; i < rightSiblingNode->_size; i++)
+            for (int i = 0; i < rightSiblingNode->_size - 1; i++)
             {
                 rightSiblingNode->_key[i] = rightSiblingNode->_key[i + 1];
                 rightSiblingNode->_record[i] = rightSiblingNode->_record[i + 1];
@@ -1040,21 +1049,25 @@ public:
     }
 
     // inclusive on both lower bound and upper bound
-    vector<Record *> searchRange(int lower, int upper)
+    void searchRange(int lower, int upper, Storage storage)
     {
-        std::vector<Record *> records = {};
+        // std::vector<Record *> records = {};
 
         if (_root == NULL)
         {
             cout << "B+ tree is empty";
-            return records;
+            return;
+            // return records;
         }
 
         Node *cur = _root;
         int numIndexNodesAccessed = 0;
+        int numFound = 0;
+        int foundTotal = 0;
 
         // ptr1 key1 ptr2 key2 ptr3 key3 ptr4
 
+        cout << "\nContent of first 5 index nodes:" << endl;
         // try to find first leaf node with key >= LB. try == LB first
         while (!cur->_leafNode)
         {
@@ -1096,7 +1109,9 @@ public:
             {
                 if (cur->_key[i] >= lower && cur->_key[i] <= upper)
                 {
-                    records.push_back(cur->_record[i]);
+                    numFound++;
+                    foundTotal = foundTotal + cur->_key[i];
+                    // records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
                 {
@@ -1108,8 +1123,11 @@ public:
         }
 
         cout << "Total number of Index Blocks accessed: " << numIndexNodesAccessed << endl;
-        cout << "Number of records found: " << records.size() << endl;
-        return records;
+        cout << "\nContent of first 5 data blocks: TODO" << endl;
+
+        cout << "Number of records found: " << numFound << endl;
+        cout << "Average rating: " << (float)foundTotal / numFound << endl;
+        return;
     }
 
     void displayStats(int numNodesDeleted)
@@ -1270,4 +1288,6 @@ public:
         // }
         // cout << endl;
     }
+
+    void displayDataBlock() {}
 };
