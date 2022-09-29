@@ -244,7 +244,7 @@ void Storage::printEveryRecordInSameBlock(Address address){
         Record temp;
         memcpy(&temp, (char*)address.blockAddress+i, sizeof(Record));
         if(!temp.deleted){
-            printf("\t%s %d\n", temp.tconst, temp.numVotes);
+            printf("\t%p %s %d\n", (char*)address.blockAddress+i, temp.tconst, temp.numVotes);
         }
         else{
             printf("\t ********Empty/Deleted********\n");
@@ -261,7 +261,7 @@ void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
             void *recordAddress = (char *) storagePtr + it * blkNodeSize;
             memcpy(&temp, (char*)recordAddress + i, sizeof(Record));
             if(!temp.deleted){
-                printf("\t%s %d\n", temp.tconst, temp.numVotes);
+                printf("\t%p %s %d\n", (char*)recordAddress + i, temp.tconst, temp.numVotes);
             }
             else{
                 printf("\t ********Empty/Deleted********\n");

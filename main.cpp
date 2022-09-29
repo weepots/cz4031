@@ -6,7 +6,7 @@
 #include <cstring>
 
 #include "storage.h"
-//#include "indexing.cpp"
+#include "indexing.cpp"
 using namespace std;
 
 int main(){
@@ -55,8 +55,15 @@ int main(){
         //insert the record into the storage
         //cout << "Failed \n";
         dataAddress = storage.writeRecord(record, sizeof(Record));
+        printf("%p %s %d\n", (char *) dataAddress.blockAddress+dataAddress.offset, record.tconst, record.numVotes);
+        Record temp = storage.readRecord(&dataAddress);
+        printf("%s %d\n", temp.tconst, temp.numVotes);
         //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
+    }
+    for(int i = 0 ; i < addressVector.size(); i++){
+        Record temp = storage.readRecord(&addressVector[i]);
+        printf("%s %d\n", temp.tconst, temp.numVotes); 
     }
     storage.deleteRecord(&addressVector[1], sizeof(Record));
     storage.printEveryRecordInAccessedBlock();
@@ -69,16 +76,16 @@ int main(){
     // storage.writeRecord(temp, sizeof(Record));
     // storage.printEveryRecordInAccessedBlock();
     //Ways to access record (Need Address)
-    Address adr = addressVector[0];
-    printf("%s %f %d\n", storage.getTConst(&adr), storage.getAvgRating(&adr), storage.getNumVotes(&adr));
+    // Address adr = addressVector[0];
+    // printf("%s %f %d\n", storage.getTConst(&adr), storage.getAvgRating(&adr), storage.getNumVotes(&adr));
 
-    Record rec = storage.readRecord(&adr);
-    printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
+    // Record rec = storage.readRecord(&adr);
+    // printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
 
-    void* memoryAdr = (char*) adr.blockAddress+adr.offset;
-    printf("%s \n", (*(Record*)memoryAdr).tconst);
+    // void* memoryAdr = (char*) adr.blockAddress+adr.offset;
+    // printf("%s \n", (*(Record*)memoryAdr).tconst);
 
-    printf("%s %f %d\n", accessTConst(&adr), accessAvgRating(&adr), accessNumVotes(&adr));
+    // printf("%s %f %d\n", accessTConst(&adr), accessAvgRating(&adr), accessNumVotes(&adr));
     // //----------------------------------------------------------------------------------------------------
 
     //storage.printEveryRecordInAccessedBlock();
@@ -107,17 +114,17 @@ int main(){
     // - the parameter n of the B+ tree;
     // - the number of nodes of the B+ tree;
     // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
-    // BPlusTree tree;
-    // int i  = 0;
-    // for(auto it : addressVector){
-    //     tree.insert(it);
-    //     //cout << storage.getNumVotes(it) << "\n";
-    //     //cout << "inserting....." << "\n";
-    //     //tree.displayTree();
-    //     cout << i++ << "\n";
-    // }
-    // cout << "Done inserting" << "\n";
-    // //tree.displayTree();
+    BPlusTree tree;
+    for(int i = 0; i < 10; i++){// This here is an address object
+        Address temp = addressVector[i];
+        tree.insert(&temp);
+        //cout << storage.getNumVotes(it) << "\n";
+        //cout << "inserting....." << "\n";
+        //tree.displayTree();
+        cout << i << "\n";
+    }
+    cout << "Done inserting" << "\n";
+    tree.displayTree();
 
     // int numNode = 0;
     // for(auto it : addressVector){
