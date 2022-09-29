@@ -65,7 +65,7 @@ public:
     {
     }
     Node getRoot() { return *_root; }
-    void insert(Address record)
+    void insert(Record record)
     {
         if (_noOfNodes == 0)
         {
@@ -83,7 +83,7 @@ public:
         {
             for (int i = 0; i < N; i++)
             {
-                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
+                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
                 {
                     nodeTrackerIndex++;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i];
@@ -96,7 +96,7 @@ public:
 
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(record) && i == N - 1)
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= record.getValue() && i == N - 1)
                 {
                     nodeTrackerIndex += 1;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i + 1];
@@ -112,40 +112,42 @@ public:
             {
                 emptySpace = true;
             }
-            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
+            if (nodeTracker[nodeTrackerIndex]->_key[i] == record.getValue())
             {
-                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
-                    return;
+                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                return;
             }
         }
 
         if (emptySpace)
         {
             int temp1, temp2;
-            vector<Address *> *r1, *r2, t;
+            vector<Record *> *r1, *r2, t;
             for (int i = 0; i < N; i++)
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
-                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    nodeTracker[nodeTrackerIndex]->_record[i].push_back(&record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
                 {
-                    r1 = nodeTracker[nodeTrackerIndex]->_record[i];
+                    r1 = &nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = new vector<Address *>;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    vector<Record *> emptyVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
-                        r2 = nodeTracker[nodeTrackerIndex]->_record[j];
+                        r2 = &nodeTracker[nodeTrackerIndex]->_record[j];
                         temp2 = nodeTracker[nodeTrackerIndex]->_key[j];
-                        nodeTracker[nodeTrackerIndex]->_record[j] = r1;
+                        nodeTracker[nodeTrackerIndex]->_record[j] = *r1;
                         nodeTracker[nodeTrackerIndex]->_key[j] = temp1;
                         r1 = r2;
                         temp1 = temp2;
@@ -156,7 +158,8 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
@@ -186,7 +189,8 @@ public:
         else
         {
             int temp[N + 1];
-            std::vector<Address *> *recordTemp = new vector<Address *> [N + 1];
+            // Record *recordTemp[N + 1];
+            std::vector<Record *> *recordTemp = new vector<Record *>[N + 1];
             int floorVal = floor((N + 1) / 2);
             int ceilVal = ceil((N + 1) / 2);
             bool recordAdded = false;
@@ -195,7 +199,7 @@ public:
             {
                 if (!recordAdded)
                 {
-                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(record))
+                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < record.getValue())
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
                         recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
@@ -203,8 +207,9 @@ public:
                     }
                     else
                     {
-                        temp[i] = accessNumVotes(record);
-                        recordTemp[i] = &record;
+                        temp[i] = record.getValue();
+                        recordTemp[i].push_back(&record);
+                        // recordTemp[i] = &record;
                         recordAdded = true;
                     }
                 }
@@ -233,7 +238,9 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] =  new vector<Address *>;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    vector<Record *> emptyVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -247,7 +254,9 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    newNode->_record[i] =  new vector<Address *>;
+                    // newNode->_record[i] = NULL;
+                    vector<Record *> emptyVector;
+                    newNode->_record[i] = emptyVector;
                 }
             }
         }
