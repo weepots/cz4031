@@ -76,7 +76,7 @@ public:
         _root = NULL;
     }
     Node getRoot() { return *_root; }
-    void insert(Record record)
+    void insert(Record *record)
     {
         if (_noOfNodes == 0)
         {
@@ -94,7 +94,7 @@ public:
         {
             for (int i = 0; i < N; i++)
             {
-                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
+                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > record->getValue())
                 {
                     nodeTrackerIndex++;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i];
@@ -107,7 +107,7 @@ public:
 
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= record.getValue() && i == N - 1)
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= record->getValue() && i == N - 1)
                 {
                     nodeTrackerIndex += 1;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i + 1];
@@ -123,9 +123,9 @@ public:
             {
                 emptySpace = true;
             }
-            if (nodeTracker[nodeTrackerIndex]->_key[i] == record.getValue())
+            if (nodeTracker[nodeTrackerIndex]->_key[i] == record->getValue())
             {
-                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                 return;
             }
         }
@@ -138,21 +138,21 @@ public:
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
-                    nodeTracker[nodeTrackerIndex]->_record[i].push_back(&record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
+                    nodeTracker[nodeTrackerIndex]->_record[i].push_back(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] > record->getValue())
                 {
                     r1 = &nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
                     // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     vector<Record *> emptyVector;
                     nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
-                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
@@ -169,9 +169,9 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record.getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
                     // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
-                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
 
@@ -210,7 +210,7 @@ public:
             {
                 if (!recordAdded)
                 {
-                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < record.getValue())
+                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < record->getValue())
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
                         recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
@@ -218,8 +218,8 @@ public:
                     }
                     else
                     {
-                        temp[i] = record.getValue();
-                        recordTemp[i].push_back(&record);
+                        temp[i] = record->getValue();
+                        recordTemp[i].push_back(record);
                         // recordTemp[i] = &record;
                         recordAdded = true;
                     }
