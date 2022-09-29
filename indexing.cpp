@@ -812,7 +812,7 @@ public:
                 internalNode->_pointer[i] = internalNode->_pointer[i - 1];
             }
             internalNode->_pointer[0] = leftSiblingNode->_pointer[leftSiblingNode->_size];
-            internalNode->_key[0] = leftSiblingNode->_key[leftSiblingNode->_size - 1];
+            internalNode->_key[0] = parentNode->_key[internalNodeIndex - 1];
             internalNode->_size++;
 
             parentNode->_key[internalNodeIndex - 1] = leftSiblingNode->_key[leftSiblingNode->_size - 1];
@@ -943,8 +943,14 @@ public:
         }
 
         Node *cur = _root;
-        while (!cur->_leafNode)
+        std::queue<Node *> queue;
+
+        queue.push(_root);
+        while (cur != NULL && !queue.empty())
         {
+            cur = queue.front();
+            queue.pop();
+
             for (int i = 0; i < cur->_size + 1; i++)
             {
                 if (cur->_pointer[i] == childNode)
@@ -965,6 +971,10 @@ public:
                         nodes.rightSiblingIndex = i + 1;
                     }
                     return nodes;
+                }
+                else if (!cur->_pointer[i]->_leafNode)
+                {
+                    queue.push(cur->_pointer[i]);
                 }
             }
         }
@@ -1291,4 +1301,3 @@ public:
 
     void displayDataBlock() {}
 };
-
