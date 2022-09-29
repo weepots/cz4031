@@ -133,32 +133,32 @@ public:
         if (emptySpace)
         {
             int temp1, temp2;
-            vector<Record *> *r1, *r2, t;
+            std::vector<Record *> r1, r2, t;
             for (int i = 0; i < N; i++)
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
-                    nodeTracker[nodeTrackerIndex]->_record[i].push_back(record);
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
+                    //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] > record->getValue())
                 {
-                    r1 = &nodeTracker[nodeTrackerIndex]->_record[i];
+                    r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
-                    vector<Record *> emptyVector;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
+                    vector<Record *> newVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = newVector;
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
-                        r2 = &nodeTracker[nodeTrackerIndex]->_record[j];
+                        r2 = nodeTracker[nodeTrackerIndex]->_record[j];
                         temp2 = nodeTracker[nodeTrackerIndex]->_key[j];
-                        nodeTracker[nodeTrackerIndex]->_record[j] = *r1;
+                        nodeTracker[nodeTrackerIndex]->_record[j] = r1;
                         nodeTracker[nodeTrackerIndex]->_key[j] = temp1;
                         r1 = r2;
                         temp1 = temp2;
@@ -170,7 +170,6 @@ public:
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
-                    // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
@@ -195,13 +194,13 @@ public:
                 }
             }
             _noOfNodes++;
+            //printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
         else
         {
             int temp[N + 1];
-            // Record *recordTemp[N + 1];
-            std::vector<Record *> *recordTemp = new vector<Record *>[N + 1];
+            std::vector<Record *> recordTemp[N + 1];
             int floorVal = floor((N + 1) / 2);
             int ceilVal = ceil((N + 1) / 2);
             bool recordAdded = false;
@@ -219,8 +218,7 @@ public:
                     else
                     {
                         temp[i] = record->getValue();
-                        recordTemp[i].push_back(record);
-                        // recordTemp[i] = &record;
+                        (recordTemp[i]).push_back(record);
                         recordAdded = true;
                     }
                 }
@@ -249,9 +247,7 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    // nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
-                    vector<Record *> emptyVector;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = emptyVector;
+                    //nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -265,9 +261,7 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    // newNode->_record[i] = NULL;
-                    vector<Record *> emptyVector;
-                    newNode->_record[i] = emptyVector;
+                    //newNode->_record[i] = NULL;
                 }
             }
         }
@@ -1309,7 +1303,7 @@ public:
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << &(node->_record[i]) << " (" << node->_record[i].size() << ")" //<< " val: " << node->_record[i].front()->getValue()
+            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")" //<< " val: " << node->_record[i].front()->getValue()
                  << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;
