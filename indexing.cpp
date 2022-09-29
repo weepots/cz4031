@@ -41,7 +41,7 @@ class Node
     // pointer to next node, if any
     Node *_nextNode = NULL;
     // list of pointers to records(this will be empty if it is a leaf node)
-    Address **_record;
+    Address *_record;
     // actual number of keys
     int _size = 0;
 
@@ -122,11 +122,11 @@ public:
             {
                 emptySpace = true;
             }
-            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
+            /*if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
-                nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                *(nodeTracker[nodeTrackerIndex]->_record[i]) = &record;
                 return;
-            }
+            }*/
         }
 
         if (emptySpace)
@@ -148,7 +148,7 @@ public:
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
                     nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i]=&record;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
@@ -1291,3 +1291,4 @@ public:
 
     void displayDataBlock() {}
 };
+
