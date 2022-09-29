@@ -499,6 +499,23 @@ public:
                 }
             }
         }
+
+        // traverse tree to print records
+        Node *temp = _root;
+        while (!temp->_leafNode)
+        {
+            temp = temp->_pointer[0];
+        }
+        while (temp != NULL)
+        {
+            for (int i = 0; i < temp->_size; i++)
+            {
+                cout << temp->_record[i].front()->getValue();
+                cout << "[" << temp->_record[i].size() << "] ";
+            }
+            temp = temp->_nextNode;
+        }
+        cout << "end print" << endl;
     }
 
     Record *search(int value)
@@ -613,7 +630,7 @@ public:
         {
             // delete key at leaf node
             removedRecord = leafNode->_record[keyIndex].front();
-            for (int i = keyIndex; i < leafNode->_size; i++)
+            for (int i = keyIndex; i < leafNode->_size - 1; i++)
             {
                 leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
                 leafNode->_record[i] = leafNode->_record[i + 1];
@@ -693,7 +710,7 @@ public:
             leafNode->_size++;
 
             // shift all keys and ptrs in right sibling to left (fill space left by moved key/ptr)
-            for (int i = 0; i < rightSiblingNode->_size; i++)
+            for (int i = 0; i < rightSiblingNode->_size - 1; i++)
             {
                 rightSiblingNode->_key[i] = rightSiblingNode->_key[i + 1];
                 rightSiblingNode->_record[i] = rightSiblingNode->_record[i + 1];
@@ -1138,6 +1155,7 @@ public:
                 {
                     numFound = numFound + cur->_record[i].size();
                     foundTotal = foundTotal + cur->_key[i] * cur->_record[i].size(); // check these
+                    cout << "checking record getvalue: " << cur->_record[i].front()->getValue() << " should be " << cur->_key[i] << endl;
                     // numFound++;
                     // foundTotal = foundTotal + cur->_key[i];
                     // records.push_back(cur->_record[i]);
@@ -1298,17 +1316,19 @@ public:
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << &(node->_record[i]) << " | " << node->_key[i];
+            cout << " | " << &(node->_record[i]) << " val: " << node->_record[i].front()->getValue() << " (" << node->_record[i].size() << ")"
+                 << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;
 
         // cout << "Leaf Node (until NULL)";
         // for (int i = 0; i < N; i++)
         // {
-        //     if (node->_record[i] != NULL)
+        //     // if (node->_record[i] != NULL)
+        //     if (!node->_record[i].empty())
         //     {
 
-        //         cout << " | " << node->_record[i];
+        //         cout << " | " << &(node->_record[i]);
         //     }
         //     if (node->_key[i] != NULL)
         //     {
