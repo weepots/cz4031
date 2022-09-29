@@ -122,11 +122,11 @@ public:
             {
                 emptySpace = true;
             }
-            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
+            /*if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
-                nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                *(nodeTracker[nodeTrackerIndex]->_record[i]) = &record;
                 return;
-            }
+            }*/
         }
 
         if (emptySpace)
@@ -138,24 +138,24 @@ public:
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
-                    r1 = nodeTracker[nodeTrackerIndex]->_record[i];
+                    r1 = *(nodeTracker[nodeTrackerIndex]->_record)[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i]=&record;
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = NULL;
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
-                        r2 = nodeTracker[nodeTrackerIndex]->_record[j];
+                        r2 = *(nodeTracker[nodeTrackerIndex]->_record)[j];
                         temp2 = nodeTracker[nodeTrackerIndex]->_key[j];
-                        nodeTracker[nodeTrackerIndex]->_record[j] = r1;
+                        *(nodeTracker[nodeTrackerIndex]->_record)[j] = r1;
                         nodeTracker[nodeTrackerIndex]->_key[j] = temp1;
                         r1 = r2;
                         temp1 = temp2;
@@ -167,7 +167,7 @@ public:
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
 
@@ -208,7 +208,7 @@ public:
                     if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(record))
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
-                        recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
+                        recordTemp[i] = *(nodeTracker[nodeTrackerIndex]->_record)[keyIndex];
                         keyIndex++;
                     }
                     else
@@ -221,7 +221,7 @@ public:
                 else
                 {
                     temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
-                    recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
+                    recordTemp[i] = *(nodeTracker[nodeTrackerIndex]->_record)[keyIndex];
                     keyIndex++;
                 }
             }
@@ -237,13 +237,13 @@ public:
                 if (i < ceilVal)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = temp[tempIndex];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = recordTemp[tempIndex];
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = recordTemp[tempIndex];
                     tempIndex++;
                 }
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    *(nodeTracker[nodeTrackerIndex]->_record)[i] = NULL;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -251,13 +251,13 @@ public:
                 if (i < floorVal)
                 {
                     newNode->_key[i] = temp[tempIndex];
-                    newNode->_record[i] = recordTemp[tempIndex];
+                    *(newNode->_record)[i] = recordTemp[tempIndex];
                     tempIndex++;
                 }
                 else
                 {
                     newNode->_key[i] = NULL;
-                    newNode->_record[i] = NULL;
+                    *(newNode->_record)[i] = NULL;
                 }
             }
         }
