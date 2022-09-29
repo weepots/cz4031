@@ -124,7 +124,7 @@ public:
             }
             if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
-                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(&record);
+                nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                 return;
             }
         }
@@ -138,7 +138,7 @@ public:
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
-                    nodeTracker[nodeTrackerIndex]->_record[i] = &record
+                    nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
