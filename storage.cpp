@@ -13,10 +13,11 @@ Storage::Storage(int storageSize, int blkNodeSize){
     this->storageSize = storageSize;
     this->blkNodeSize = blkNodeSize;
     this->currentUsedBlkSize = 0;
-    this->usedBlkSize = 0;
-    this->usedRecordSize = 0;
+    this->totalUsedBlkSize = 0;
+    this->totalUsedRecordSize = 0;
     this->availBlk = storageSize/blkNodeSize;
     this->usedBlk = 0;
+    this->deletedAddress.clear();
 };
 
 // destroy class and clear memory
@@ -26,19 +27,49 @@ Storage:: ~ Storage(){
 };
 
 //record functions
-Address Storage::writeRecord(int recordSize){
+Address Storage::writeRecord(Record& record, int recordSize){
     if (recordSize > blkNodeSize){
         cout << "Records cannot be larger than block size\n";
         throw "Records cannot be larger than block size";
     }
 
+    //Address where our record will be write into
+    Address address;
+
+    //Update the memory location where address has been deleted
+    if(!deletedAddress.empty()){
+        address = deletedAddress.back();
+        deletedAddress.pop_back();
+
+        //Insert the record in storage
+        void *ptr = (char*) address.blockAddress+address.offset;
+        memcpy(ptr, &record, sizeof(Record));
+
+        //Update blocks accessed
+        if(getBlkAccessed() < 5){
+            insertBlkAccessed(address);
+        }
+        //Update statistics
+        totalUsedRecordSize += recordSize;
+        if( (char*)address.blockAddress == blkPtr){
+            currentUsedBlkSize += recordSize;
+        }
+
+        return address;
+    }
+
     if(recordSize + currentUsedBlkSize > blkNodeSize || usedBlk == 0){
         if(availBlk > 0){
             blkPtr = storagePtr + usedBlk * blkNodeSize; //Allocate location of block
+            Record temp;
+            for(int i = 0; i < blkNodeSize; i += recordSize){
+                void *ptr = (char*) blkPtr + i;
+                memcpy(ptr, &temp, sizeof(Record));
+            }
             
             //Update statistics
             currentUsedBlkSize = 0;
-            usedBlkSize += blkNodeSize;
+            totalUsedBlkSize += blkNodeSize;
             availBlk -= 1;
             usedBlk += 1;
         }
@@ -49,7 +80,11 @@ Address Storage::writeRecord(int recordSize){
     }
 
     //Address where our record will be write into
-    Address address = {blkPtr, currentUsedBlkSize};
+    address = {blkPtr, currentUsedBlkSize};
+
+    //Insert the record in storage
+    void *ptr = (char*) address.blockAddress+address.offset;
+    memcpy(ptr, &record, sizeof(Record));
 
     //Update blocks accessed
     if(getBlkAccessed() < 5){
@@ -57,7 +92,7 @@ Address Storage::writeRecord(int recordSize){
     }
     
     //Update statistics
-    usedRecordSize += recordSize;
+    totalUsedRecordSize += recordSize;
     currentUsedBlkSize += recordSize;
 
     return address;
@@ -72,20 +107,24 @@ Record Storage::readRecord(Address address){
 void Storage::deleteRecord(Address address, int recordSize){
     //get record address
     try{
-        void* recordAddress = (char *)address.blockAddress + address.offset;
-        //set entire record to null
-        memset(recordAddress, '\0', recordSize);
-
-        //Update actuall storage size
-        usedRecordSize =- recordSize;
-        currentUsedBlkSize -= recordSize;
+        Record temp = readRecord(address);
+        temp.deleted = true; //Set the deleted status to true;
+        void *ptr = (char*) address.blockAddress+address.offset;
+        memcpy(ptr, &temp, sizeof(Record));
+        deletedAddress.push_back(address);
+      
+        //Update actual storage size
+        totalUsedRecordSize -= recordSize;
+        if( (char*)address.blockAddress == blkPtr){
+            currentUsedBlkSize -= recordSize;
+        }
 
         //If the block is empty, remove the block
-        if(emptyCheck(address)){
-            usedBlkSize -= blkNodeSize;
-            usedBlk--;
-            availBlk++;
-        }
+        // if(emptyCheck(address)){
+        //     totalUsedBlkSize -= blkNodeSize;
+        //     usedBlk--;
+        //     availBlk++;
+        // }
     }
     catch(...){
         cout<<"Could not remove record/block";
@@ -97,26 +136,44 @@ char* Storage::getTConst(Address address){
     Record temp;
     memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
     char *tempChar = temp.tconst;
+
+    insertBlkAccessed(address);
+
     return tempChar;
 }
 
 float Storage::getAvgRating(Address address){
     Record temp;
     memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+
+    insertBlkAccessed(address);
+
     return temp.avgRating;
 }
 
 int Storage::getNumVotes(Address address){
     Record temp;
     memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+
+    insertBlkAccessed(address);
+
     return temp.numVotes;
 }
 
+bool Storage::getDeleted(Address address){
+    Record temp;
+    memcpy(&temp, (char*) address.blockAddress+address.offset, sizeof(Record));
+
+    insertBlkAccessed(address);
+
+    return temp.deleted;
+}
+
 bool Storage:: emptyCheck(Address address){
-        char *emptyBlock = new char[blkNodeSize];
-        memset(emptyBlock, '\0', blkNodeSize);
-        bool isEmptyBlock = memcmp(emptyBlock, address.blockAddress, blkNodeSize);
-        return isEmptyBlock;
+    char *emptyBlock = new char[blkNodeSize];
+    memset(emptyBlock, '\0', blkNodeSize);
+    bool isEmptyBlock = memcmp(emptyBlock, address.blockAddress, blkNodeSize);
+    return isEmptyBlock;
 }
 
 void Storage::insertBlkAccessed(Address address){
@@ -146,28 +203,32 @@ int Storage :: getblkNodeSize(){
     return blkNodeSize;
 }
 
-int Storage :: getUsedRecordSize(){
-    return usedRecordSize;
+int Storage :: getTotalUsedRecordSize(){
+    return totalUsedRecordSize;
 }
 
-int Storage :: getUsedBlkSize(){
-    return usedBlkSize;
+int Storage :: getTotalUsedBlkSize(){
+    return totalUsedBlkSize;
 }
 
 int Storage :: getUsedBlk(){
-    return usedBlkSize;
+    return usedBlk;
 }
 
 int Storage :: getAvailBlk(){
     return availBlk;
 }
 
+int Storage :: getBlkNo(Address address){
+    return (address.blockAddress - storagePtr) / blkNodeSize;
+}
+
 void Storage :: display(){
     printf("--------------------------------------------------------------\n");
     printf("Storage size\t\t\t: %d\n", storageSize);
     printf("Block size\t\t\t: %d\n", blkNodeSize);
-    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*usedRecordSize)/1000000);
-    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*usedBlkSize)/1000000);
+    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*totalUsedRecordSize)/1000000);
+    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*totalUsedBlkSize)/1000000);
     printf("Memory used by current block\t: %d\n", currentUsedBlkSize);
     printf("No of available blocks\t\t: %d\n", availBlk);
     printf("No of used blocks\t\t: %d\n", usedBlk);
@@ -180,7 +241,12 @@ void Storage::printEveryRecordInSameBlock(Address address){
     for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
         Record temp;
         memcpy(&temp, (char*)address.blockAddress+i, sizeof(Record));
-        printf("\t%s %d\n", temp.tconst, temp.numVotes);
+        if(!temp.deleted){
+            printf("\t%s %d\n", temp.tconst, temp.numVotes);
+        }
+        else{
+            printf("\t ********Empty/Deleted********\n");
+        }
     }
     printf("\n");
 }
@@ -192,7 +258,12 @@ void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
             Record temp;
             void *recordAddress = (char *) storagePtr + it * blkNodeSize;
             memcpy(&temp, (char*)recordAddress + i, sizeof(Record));
-            printf("\t%s %d\n", temp.tconst, temp.numVotes);
+            if(!temp.deleted){
+                printf("\t%s %d\n", temp.tconst, temp.numVotes);
+            }
+            else{
+                printf("\t ********Empty/Deleted********\n");
+            }
         }
     }
     return;

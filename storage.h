@@ -9,10 +9,12 @@ const int tconst_size = 10;
 typedef unsigned un_int;
 
 struct Record{
-    char tconst[tconst_size]; //10 byte length record ID as key
-    float avgRating; //4 byte length
-    int numVotes; // 4 byte length
+    float avgRating = -1; //4 bytes length
+    int numVotes = -1; // 4 bytes length
+    char tconst[tconst_size] = "dummy"; //10 bytes length record ID as key
+    bool deleted = true; //1 bytes length
 };
+//Size of record should be 19 but because of memory positioning. Record will be a 20bytes struct
 
 struct Address{
     char* blockAddress;
@@ -27,14 +29,15 @@ class Storage{
 private:
     //Pointers
     char *storagePtr;  // Pointer to the memory pool.
-    char *blkPtr; 
+    char *blkPtr; // Pointer to current block.
 
     //Attributes in bytes
     int storageSize; //storage size in bytes
     int blkNodeSize; //blk node size in bytes
     int currentUsedBlkSize; //current used blk size in bytes
-    int usedBlkSize; //total used block size
-    int usedRecordSize; //total used record size
+    int totalUsedBlkSize; //total used block size
+    int totalUsedRecordSize; //total used record size
+    vector<Address> deletedAddress; // vector that stores address where a record has been deleted
 
     //Attributes in numbers
     int availBlk; //number of unallocated blocks
@@ -51,17 +54,19 @@ public:
     //get functions
     int getStorageSize();
     int getblkNodeSize();
-    int getUsedBlkSize();
-    int getUsedRecordSize();
+    int getTotalUsedBlkSize();
+    int getTotalUsedRecordSize();
     int getAvailBlk();
     int getUsedBlk();
+    int getBlkNo(Address address);
 
     // record functions
-    Address writeRecord(int recordSize);
+    Address writeRecord(Record& record, int recordSize);
     Record readRecord(Address address);
     char* getTConst(Address address);
     float getAvgRating(Address address);
     int getNumVotes(Address address);
+    bool getDeleted(Address address);
     void deleteRecord(Address address, int recordSize);
     bool emptyCheck(Address address);
     void insertBlkAccessed(Address address);

@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 #include <cstring>
 
 #include "storage.h"
@@ -41,20 +40,33 @@ int main(){
         Record record;
         Address dataAddress;
         string tempData;
-        split(parts,line, boost::is_any_of("\t"));
-
+        
         //passed in record values
-        strcpy(record.tconst, parts[0].c_str());
-        record.avgRating = stof(parts[1]);
-        record.numVotes = stof(parts[2]);
+        int pos = line.find('\t');
+        int pos2 = line.find('\t', pos+1);
+        strcpy(record.tconst, line.substr(0, pos).c_str());
+        record.avgRating = stof(line.substr(pos+1, pos2));
+        record.numVotes = stoi(line.substr(pos2+1, line.size()));
+        record.deleted = false;
+
+        //cout << sizeof(Record) << " " << sizeof(record.tconst) << " " << sizeof(record.avgRating) << " " << sizeof(record.numVotes) << " " << sizeof(record.deleted) << "\n";
+        //cout << record.tconst << " "  << record.avgRating << " " << record.numVotes << "\n";;
 
         //insert the record into the storage
-        dataAddress = storage.writeRecord(sizeof(Record));
-        void *ptr = (char*) dataAddress.blockAddress+dataAddress.offset;
-        memcpy(ptr, &record, sizeof(Record));
+        dataAddress = storage.writeRecord(record, sizeof(Record));
+        //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
+    storage.deleteRecord(addressVector[1], sizeof(Record));
+    storage.printEveryRecordInAccessedBlock();
 
+    Record temp;
+    temp.avgRating = 7.2;
+    temp.numVotes = 1111;
+    temp.deleted = false;
+
+    storage.writeRecord(temp, sizeof(Record));
+    storage.printEveryRecordInAccessedBlock();
     //Ways to access record (Need Address)
     // Address adr = addressVector[0];
     // printf("%s %f %d\n", storage.getTConst(adr), storage.getAvgRating(adr), storage.getNumVotes(adr));
@@ -68,9 +80,10 @@ int main(){
     // printf("%s %f %d\n", accessTConst(adr), accessAvgRating(adr), accessNumVotes(adr));
     // //----------------------------------------------------------------------------------------------------
 
-    // storage.printEveryRecordInSameBlock(addressVector[0]);
-    // storage.display();
-    // fin.close();
+    //storage.printEveryRecordInAccessedBlock();
+    //storage.printEveryRecordInSameBlock(addressVector[0]);
+    //storage.display();
+    fin.close();
 
     // Experiment 1: 
     // Store the data (which is about IMDb movives and
@@ -81,8 +94,8 @@ int main(){
     cout << "------------------------------Experiment 1--------------------------------\n";
     printf("No of available blocks\t\t: %d\n", storage.getAvailBlk());
     printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
-    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*storage.getUsedRecordSize())/1000000);
-    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getUsedBlkSize()/1000000));
+    printf("Memory used by records (MB)\t: %.5lf\n", (1.0*storage.getTotalUsedRecordSize())/1000000);
+    printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getTotalUsedBlkSize()/1000000));
     cout << "--------------------------------------------------------------------------\n\n";
     
     //storage.printEveryRecordInAccessedBlock();
