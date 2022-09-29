@@ -146,7 +146,7 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] > record.getValue())
                 {
-                    r1 = nodeTracker[nodeTrackerIndex]->_record[i];
+                    r1 = &nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
                     // nodeTracker[nodeTrackerIndex]->_record[i] = &record;
                     vector<Record *> emptyVector;
@@ -156,9 +156,9 @@ public:
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
-                        r2 = nodeTracker[nodeTrackerIndex]->_record[j];
+                        r2 = &nodeTracker[nodeTrackerIndex]->_record[j];
                         temp2 = nodeTracker[nodeTrackerIndex]->_key[j];
-                        nodeTracker[nodeTrackerIndex]->_record[j] = r1;
+                        nodeTracker[nodeTrackerIndex]->_record[j] = *r1;
                         nodeTracker[nodeTrackerIndex]->_key[j] = temp1;
                         r1 = r2;
                         temp1 = temp2;
