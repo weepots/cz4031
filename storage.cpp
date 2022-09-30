@@ -115,6 +115,9 @@ void Storage::deleteRecord(Address *address, int recordSize){
             void *ptr = (char*) address->blockAddress+address->offset;
             memcpy(ptr, &temp, sizeof(Record));
             deletedAddress.push_back(address);
+
+            //Update blockAccessed
+            insertBlkAccessed(address);
         
             //Update actual storage size
             totalUsedRecordSize -= recordSize;
@@ -179,7 +182,7 @@ bool Storage:: emptyCheck(Address * address, int recordSize){
     for(int i = 0; i < blkNodeSize; i += recordSize){
         void *ptr = (char*) address->blockAddress + i;
         memcpy(&temp, (char*)ptr, recordSize);
-        cout << "\t" << temp.deleted << "\n";
+        //cout << "\t" << temp.deleted << "\n";
         if(!temp.deleted) return false;
     }
     return true;
@@ -188,8 +191,10 @@ bool Storage:: emptyCheck(Address * address, int recordSize){
 void Storage::insertBlkAccessed(Address *address){
     int blkNo = (address->blockAddress - storagePtr) / blkNodeSize;
     auto it = find(blkAccessed.begin(), blkAccessed.end(), blkNo);
+    //printf("Block number : %d\n", blkNo);
     if(it == blkAccessed.end()){
         blkAccessed.push_back(blkNo);
+        //cout << "inserted" << "\n";
     }
 }
 

@@ -1,0 +1,180 @@
+--------------------------------------------------------------
+Storage size                    : 300000000
+Block size                      : 200
+Memory used by records (MB)     : 21.40636
+Memory used by blocks (MB)      : 21.40640
+Memory used by current block    : 160
+No of available blocks          : 1392968
+No of used blocks               : 107032
+--------------------------------------------------------------
+
+------------------------------Experiment 1--------------------------------
+No of available blocks          : 1392968
+No of used blocks               : 107032
+Memory used by records (MB)     : 21.40636
+Memory used by blocks (MB)      : 21.40640
+--------------------------------------------------------------------------
+
+
+
+------------------------------Experiment 2--------------------------------
+Number of nodes in updated B+ tree: 11698
+Height of B+ tree: 10
+Content of root node:
+Internal Node [2 children]:  | 0x1965fde25b0 | 19320 | 0x19671921f60
+Content of 1st child node:
+Internal Node [3 children]:  | 0x1965f11a3e0 | 6018 | 0x1965fde2770 | 11598 | 0x19671921620--------------------------------------------------------------------------
+
+
+
+------------------------------Experiment 3--------------------------------
+
+Content of first 5 index nodes:
+#1: Internal Node [2 children]:  | 0x1965fde25b0 | 19320 | 0x19671921f60
+#2: Internal Node [3 children]:  | 0x1965f11a3e0 | 6018 | 0x1965fde2770 | 11598 | 0x19671921620
+#3: Internal Node [3 children]:  | 0x1964b609480 | 1807 | 0x1965f11ade0 | 3332 | 0x1965fbe4e60
+#4: Internal Node [4 children]:  | 0x1964b562d80 | 499 | 0x1965ef8ecb0 | 888 | 0x1964b608e80 | 1422 | 0x1965f2c8e60
+#5: Internal Node [2 children]:  | 0x1964b562140 | 735 | 0x1965ef8e3f0
+Total number of Index Blocks accessed: 11
+Number of records found: 110
+Average rating: 6.32727
+Number of data blocks process accessed : 110
+Block Number : 359
+        tt0013631
+        tt0013658
+        tt0013662
+        tt0013668
+        tt0013672
+        tt0013674
+        tt0013679
+        tt0013681
+        tt0013682
+        tt0013687
+Block Number : 901
+        tt0024550
+        tt0024551
+        tt0024553
+        tt0024554
+        tt0024555
+        tt0024558
+        tt0024559
+        tt0024560
+        tt0024561
+        tt0024562
+Block Number : 1182
+        tt0028271
+        tt0028272
+        tt0028273
+        tt0028274
+        tt0028275
+        tt0028276
+        tt0028277
+        tt0028278
+        tt0028279
+        tt0028280
+Block Number : 2277
+        tt0041946
+        tt0041947
+        tt0041948
+        tt0041949
+        tt0041951
+        tt0041952
+        tt0041953
+        tt0041954
+        tt0041955
+        tt0041956
+Block Number : 2718
+        tt0047355
+        tt0047356
+        tt0047357
+        tt0047358
+        tt0047359
+        tt0047360
+        tt0047361
+        tt0047362
+        tt0047363
+        tt0047364
+--------------------------------------------------------------------------
+
+
+
+------------------------------Experiment 4--------------------------------
+
+Content of first 5 index nodes:
+#1: Internal Node [2 children]:  | 0x1965fde25b0 | 19320 | 0x19671921f60
+#2: Internal Node [2 children]:  | 0x1966a4fd5b0 | 59549 | 0x19667aa2ae0
+#3: Internal Node [3 children]:  | 0x19669dc69e0 | 24703 | 0x1965fde25f0 | 37228 | 0x1966a16fe70
+#4: Internal Node [3 children]:  | 0x1965f8321a0 | 28584 | 0x1966a16f4f0 | 32062 | 0x1966a4882f0
+#5: Internal Node [2 children]:  | 0x196601c3790 | 30769 | 0x1966a58ae70
+Total number of Index Blocks accessed: 391
+Number of records found: 953
+Average rating: 6.27387
+Number of data blocks process accessed : 935
+Block Number : 3296
+        tt0054158
+        tt0054159
+        tt0054160
+        tt0054161
+        tt0054162
+        tt0054164
+        tt0054165
+        tt0054166
+        tt0054167
+        tt0054168
+Block Number : 1065
+        tt0026776
+        tt0026777
+        tt0026778
+        tt0026779
+        tt0026781
+        tt0026783
+        tt0026784
+        tt0026785
+        tt0026786
+        tt0026787
+Block Number : 6519
+        tt0091818
+        tt0091819
+        tt0091820
+        tt0091821
+        tt0091823
+        tt0091824
+        tt0091825
+        tt0091826
+        tt0091827
+        tt0091828
+Block Number : 77378
+        tt3361618
+        tt3361630
+        tt3361638
+        tt3361644
+        tt3361702
+        tt3361726
+        tt3361740
+        tt3361784
+        tt3361786
+        tt3361792
+Block Number : 57298
+        tt1456941
+        tt1456944
+        tt1456946
+        tt1456947
+        tt1456948
+        tt1456949
+        tt1456950
+        tt1456953
+        tt1456957
+        tt1456958
+--------------------------------------------------------------------------
+
+
+
+------------------------------Experiment 5--------------------------------
+Number of nodes deleted: 42
+Number of nodes in updated B+ tree: 11698
+Height of B+ tree: 10
+Content of root node:
+Internal Node [2 children]:  | 0x1965fde25b0 | 19320 | 0x19671921f60
+Content of 1st child node:
+Internal Node [3 children]:  | 0x1965f11a3e0 | 6018 | 0x1965fde2770 | 11598 | 0x19671921620
+--------------------------------------------------------------------------
