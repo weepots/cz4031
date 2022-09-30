@@ -140,7 +140,7 @@ public:
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
-                    //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
+                    // printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
@@ -194,7 +194,7 @@ public:
                 }
             }
             _noOfNodes++;
-            //printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
+            // printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
         else
@@ -247,7 +247,7 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    //nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -261,7 +261,7 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    //newNode->_record[i] = NULL;
+                    // newNode->_record[i] = NULL;
                 }
             }
         }
@@ -1303,7 +1303,8 @@ public:
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")" //<< " val: " << node->_record[i].front()->getValue()
+            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")"
+                 << " val: " << node->_record[i].front()->getValue()
                  << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;

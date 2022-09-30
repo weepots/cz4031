@@ -33,18 +33,35 @@ int main()
 
     BPlusTree tree;
 
-    std::vector<int> v = {2, 4, 9, 11, 6, 7, 10, 8, 5, 12, 3, 13, 16, 1};
+    // std::vector<int> v = {2, 4, 9, 11, 6, 7, 10, 8, 5, 12, 3, 13, 16, 1};
+    std::vector<int> v = {};
+    std::ifstream fin("smaller.txt");
+    int element;
+    while (fin >> element)
+    {
+        v.push_back(element);
+    }
+    cout << "total: " << v.size() << endl;
+    // std::vector<int> v = {};
+    // for (int i = 0; i < 1000000; i++)
+    // {
+    //     v.push_back(i);
+    // }
 
     tree.displayTree();
     for (int i : v)
     {
+        Record *newRecord = new Record(i);
+        cout << "inserting " << newRecord->getValue() << endl;
         // cout << "inserting " << i << endl;
-        tree.insert(Record(i));
+        tree.insert(newRecord);
+        // cout << "finished inserting " << i << endl;
         // tree.displayTree();
     }
 
     tree.displayTree();
     cout << "FINISHED INSERTION" << endl;
+    cout << "inserted " << v.size() << " records" << endl;
 
     int choice = 0;
     int manualOption = 0;
@@ -83,13 +100,14 @@ int main()
                     cin >> lb;
                     cout << "Enter upper bound (inclusive):" << endl;
                     cin >> up;
-                    vector<Record *> records = tree.searchRange(lb, up);
+                    tree.searchRange(lb, up);
+                    // vector<Record *> records = tree.searchRange(lb, up);
 
-                    cout << "Records found: ";
-                    for (Record *i : records)
-                    {
-                        cout << i->getValue() << " ";
-                    }
+                    // cout << "Records found: ";
+                    // for (Record *i : records)
+                    // {
+                    //     cout << i->getValue() << " ";
+                    // }
                 }
                 cout << "Manual mode, select action: \n 1. Insert\n 2. Delete\n 3. Search\n 4. Search Range\n 5. Exit manual mode" << endl;
                 cin >> manualOption;
@@ -97,6 +115,12 @@ int main()
         }
         if (choice == 2)
         {
+            // runTest(tree, v);
+            std::vector<int> todelete = {
+                1645, 198, 1342, 120, 2127, 115
+
+            };
+
             runTest(tree, v);
         }
         cout << "Select a mode: \n 1. Manual\n 2. Run tests\n 3. Exit" << endl;
@@ -107,6 +131,7 @@ int main()
 void runTest(BPlusTree tree, vector<int> v)
 {
     Record *removed;
+    int numNodesDeleted = 0;
     std::queue<int> queue;
     for (int i : v)
     {
@@ -118,7 +143,7 @@ void runTest(BPlusTree tree, vector<int> v)
         int val = queue.front();
         queue.pop();
         cout << "\n------------ REMOVING " << val << "-----------------" << endl;
-        removed = tree.remove(val);
+        removed = tree.remove(val, numNodesDeleted);
         if (removed != NULL)
         {
 
@@ -129,6 +154,7 @@ void runTest(BPlusTree tree, vector<int> v)
             cout << "key not found in b+ tree, nothing returned. final tree:" << endl;
         }
         tree.displayTree();
+        cout << "Total number of nodes deleted: " << numNodesDeleted << endl;
     }
 }
 
@@ -149,7 +175,8 @@ BPlusTree multipleInserts(BPlusTree tree)
 BPlusTree insertKey(BPlusTree tree, int key)
 {
     cout << "\n------------ INSERTING " << key << "-----------------" << endl;
-    tree.insert(Record(key));
+    Record *newRecord = new Record(key);
+    tree.insert(newRecord);
     cout << "key inserted. final tree:" << endl;
     tree.displayTree();
 
@@ -174,8 +201,9 @@ BPlusTree multipleDeletes(BPlusTree tree)
 BPlusTree deleteKey(BPlusTree tree, int key)
 {
     Record *removed;
+    int numNodesDeleted = 0;
     cout << "\n------------ REMOVING " << key << "-----------------" << endl;
-    removed = tree.remove(key);
+    removed = tree.remove(key, numNodesDeleted);
     if (removed != NULL)
     {
 
@@ -185,6 +213,7 @@ BPlusTree deleteKey(BPlusTree tree, int key)
     {
         cout << "key not found in b+ tree, nothing returned. final tree:" << endl;
     }
+    delete removed;
     tree.displayTree();
 
     return tree;
