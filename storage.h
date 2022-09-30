@@ -62,7 +62,7 @@ public:
     int getBlkNo(Address *address);
 
     // record functions
-    Address *writeRecord(Record& record, int recordSize);
+    Address writeRecord(Record& record, int recordSize);
     Record readRecord(Address *address);
     char* getTConst(Address *address);
     float getAvgRating(Address *address);
