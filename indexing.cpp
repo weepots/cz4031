@@ -23,7 +23,8 @@ class Node
     // pointer to next node, if any
     Node *_nextNode = NULL;
     // list of pointers to records(this will be empty if it is a leaf node)
-    Address **_record;
+    std::vector<Address *> *_record; // pointer to list of vectors containing pointers to records
+    // Record **_record;
     // actual number of keys
     int _size = 0;
 
@@ -34,7 +35,8 @@ public:
     {
         _key = new int[N];
         _pointer = new Node *[N + 1];
-        _record = new Address*[N];
+        _record = new vector<Address *>[N];
+        // _record = new Record *[N];
 
         for (int i = 0; i < N; i++)
         {
@@ -75,7 +77,7 @@ public:
         {
             for (int i = 0; i < N; i++)
             {
-                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(*record))
+                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     nodeTrackerIndex++;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i];
@@ -88,7 +90,7 @@ public:
 
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(*record) && i == N - 1)
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(record) && i == N - 1)
                 {
                     nodeTrackerIndex += 1;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i + 1];
@@ -104,34 +106,36 @@ public:
             {
                 emptySpace = true;
             }
-            /*if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
+            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
-                *(nodeTracker[nodeTrackerIndex]->_record[i]) = &record;
+                (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                 return;
-            }*/
+            }
         }
 
         if (emptySpace)
         {
             int temp1, temp2;
-            Address *r1, *r2, t;
+            std::vector<Address *> r1, r2, t;
             for (int i = 0; i < N; i++)
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(*record);
-                    nodeTracker[nodeTrackerIndex]->_record[i] = record;
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
+                    //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(*record))
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = record;
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(*record);
+                    vector<Address *> newVector;
+                    nodeTracker[nodeTrackerIndex]->_record[i] = newVector;
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
@@ -148,8 +152,9 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(*record);
-                    nodeTracker[nodeTrackerIndex]->_record[i] = record;
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).clear();
+                    (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // cout<<"i3 "<<endl;
 
@@ -173,12 +178,13 @@ public:
                 }
             }
             _noOfNodes++;
+            //printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
         else
         {
             int temp[N + 1];
-            Address *recordTemp[N + 1];
+            std::vector<Address *> recordTemp[N + 1];
             int floorVal = floor((N + 1) / 2);
             int ceilVal = ceil((N + 1) / 2);
             bool recordAdded = false;
@@ -187,7 +193,7 @@ public:
             {
                 if (!recordAdded)
                 {
-                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(*record))
+                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(record))
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
                         recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
@@ -195,8 +201,8 @@ public:
                     }
                     else
                     {
-                        temp[i] = accessNumVotes(*record);
-                        recordTemp[i] = record;
+                        temp[i] = accessNumVotes(record);
+                        (recordTemp[i]).push_back(record);
                         recordAdded = true;
                     }
                 }
@@ -225,7 +231,7 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    //nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -239,7 +245,7 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    newNode->_record[i] = NULL;
+                    //newNode->_record[i] = NULL;
                 }
             }
         }
@@ -520,7 +526,7 @@ public:
                 printf("%d, ", cursor->_key[i]);
                 if (cursor->_key[i] == value)
                 {
-                    result = cursor->_record[i];
+                    result = cursor->_record[i].front();
                 }
             }
         }
@@ -570,16 +576,31 @@ public:
         }
 
         // delete the key at leaf node (check if underflow -> can borrow from sibling, cannot borrow from sibling), update parents recursively
-        removedRecord = leafNode->_record[keyIndex];
-        for (int i = keyIndex; i < leafNode->_size; i++)
-        {
-            leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
-            leafNode->_record[i] = leafNode->_record[i + 1];
-        }
 
-        leafNode->_size--;
-        leafNode->_key[leafNode->_size] = NULL;
-        leafNode->_record[leafNode->_size] = NULL;
+        // check vector: if points to >1 record, just remove duplicate. if point to 1 record, delete key
+        if (leafNode->_record[keyIndex].size() > 1)
+        {
+            // duplicate key, no need to remove key in B+ tree, just remove duplicate
+            removedRecord = (leafNode->_record[keyIndex]).front();
+            leafNode->_record[keyIndex].erase(leafNode->_record[keyIndex].begin()); // remove first record
+            displayStats(numNodesDeleted);
+
+            return removedRecord;
+        }
+        else
+        {
+            // delete key at leaf node
+            removedRecord = leafNode->_record[keyIndex].front();
+            for (int i = keyIndex; i < leafNode->_size - 1; i++)
+            {
+                leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
+                leafNode->_record[i] = leafNode->_record[i + 1];
+            }
+            leafNode->_size--;
+            leafNode->_key[leafNode->_size] = NULL;
+            vector<Address *> emptyVector;
+            leafNode->_record[leafNode->_size] = emptyVector;
+        }
 
         // if only 1 level tree, and last key deleted, entire tree is deleted
         if (leafNode == _root && leafNode->_size == 0)
@@ -632,7 +653,8 @@ public:
 
             leftSiblingNode->_size--;
             leftSiblingNode->_key[leftSiblingNode->_size] = NULL;
-            leftSiblingNode->_record[leftSiblingNode->_size] = NULL;
+            vector<Address *> emptyVector;
+            leftSiblingNode->_record[leftSiblingNode->_size] = emptyVector;
 
             // only direct parent will be affected.
             // will not borrow minimum key (leftmost on left sibling), so parents above will not change (? need confirm)
@@ -656,7 +678,8 @@ public:
             }
             rightSiblingNode->_size--;
             rightSiblingNode->_key[rightSiblingNode->_size] = NULL;
-            rightSiblingNode->_record[rightSiblingNode->_size] = NULL;
+            vector<Address *> emptyVector;
+            rightSiblingNode->_record[rightSiblingNode->_size] = emptyVector;
 
             parentNode->_key[rightSiblingIndex - 1] = rightSiblingNode->_key[0];
         }
@@ -1041,7 +1064,7 @@ public:
     }
 
     // inclusive on both lower bound and upper bound
-    void searchRange(int lower, int upper, Storage storage)
+    void searchRange(int lower, int upper)
     {
         // std::vector<Record *> records = {};
 
@@ -1101,8 +1124,11 @@ public:
             {
                 if (cur->_key[i] >= lower && cur->_key[i] <= upper)
                 {
-                    numFound++;
-                    foundTotal = foundTotal + cur->_key[i];
+                    numFound = numFound + cur->_record[i].size();
+                    foundTotal = foundTotal + cur->_key[i] * cur->_record[i].size(); // check these
+                    cout << "checking record getvalue: " << accessNumVotes(cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
+                    // numFound++;
+                    // foundTotal = foundTotal + cur->_key[i];
                     // records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
@@ -1261,17 +1287,19 @@ public:
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << node->_record[i] << " | " << node->_key[i];
+            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")" //<< " val: " << node->_record[i].front()->getValue()
+                 << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;
 
         // cout << "Leaf Node (until NULL)";
         // for (int i = 0; i < N; i++)
         // {
-        //     if (node->_record[i] != NULL)
+        //     // if (node->_record[i] != NULL)
+        //     if (!node->_record[i].empty())
         //     {
 
-        //         cout << " | " << node->_record[i];
+        //         cout << " | " << &(node->_record[i]);
         //     }
         //     if (node->_key[i] != NULL)
         //     {
@@ -1280,6 +1308,4 @@ public:
         // }
         // cout << endl;
     }
-
-    void displayDataBlock() {}
 };
