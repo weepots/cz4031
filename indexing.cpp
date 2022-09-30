@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include "storage.h"
 #include <vector>
 #include <queue>
 using namespace std;
@@ -76,7 +77,7 @@ public:
         {
             for (int i = 0; i < N; i++)
             {
-                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(*record))
+                if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     nodeTrackerIndex++;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i];
@@ -89,7 +90,7 @@ public:
 
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(*record) && i == N - 1)
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] != NULL && nodeTracker[nodeTrackerIndex]->_key[i] <= accessNumVotes(record) && i == N - 1)
                 {
                     nodeTrackerIndex += 1;
                     nodeTracker[nodeTrackerIndex] = nodeTracker[nodeTrackerIndex - 1]->_pointer[i + 1];
@@ -105,7 +106,7 @@ public:
             {
                 emptySpace = true;
             }
-            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(*record))
+            if (nodeTracker[nodeTrackerIndex]->_key[i] == accessNumVotes(record))
             {
                 (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                 return;
@@ -120,21 +121,21 @@ public:
             {
                 if (i == 0 && nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
                 }
-                else if (nodeTracker[nodeTrackerIndex]->_key[i] > record->getValue())
+                else if (nodeTracker[nodeTrackerIndex]->_key[i] > accessNumVotes(record))
                 {
                     r1 = nodeTracker[nodeTrackerIndex]->_record[i];
                     temp1 = nodeTracker[nodeTrackerIndex]->_key[i];
                     vector<Address *> newVector;
                     nodeTracker[nodeTrackerIndex]->_record[i] = newVector;
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
                     for (int j = i + 1; j < N; j++)
                     {
@@ -151,7 +152,7 @@ public:
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
                 {
-                    nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
+                    nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     (nodeTracker[nodeTrackerIndex]->_record[i]).clear();
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
                     nodeTracker[nodeTrackerIndex]->_size++;
@@ -192,7 +193,7 @@ public:
             {
                 if (!recordAdded)
                 {
-                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < record->getValue())
+                    if (keyIndex < N && nodeTracker[nodeTrackerIndex]->_key[keyIndex] < accessNumVotes(record))
                     {
                         temp[i] = nodeTracker[nodeTrackerIndex]->_key[keyIndex];
                         recordTemp[i] = nodeTracker[nodeTrackerIndex]->_record[keyIndex];
@@ -200,7 +201,7 @@ public:
                     }
                     else
                     {
-                        temp[i] = record->getValue();
+                        temp[i] = accessNumVotes(record);
                         (recordTemp[i]).push_back(record);
                         recordAdded = true;
                     }
@@ -1125,7 +1126,7 @@ public:
                 {
                     numFound = numFound + cur->_record[i].size();
                     foundTotal = foundTotal + cur->_key[i] * cur->_record[i].size(); // check these
-                    cout << "checking record getvalue: " << accessNumVotes(*cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
+                    cout << "checking record getvalue: " << accessNumVotes(cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
                     // numFound++;
                     // foundTotal = foundTotal + cur->_key[i];
                     // records.push_back(cur->_record[i]);
