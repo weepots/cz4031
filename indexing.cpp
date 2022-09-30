@@ -150,7 +150,7 @@ public:
                     break;
                 }
                 else if (nodeTracker[nodeTrackerIndex]->_key[i] == NULL)
-                {printf(" here(%d)", record->getValue());
+                {
                     nodeTracker[nodeTrackerIndex]->_key[i] = record->getValue();
                     (nodeTracker[nodeTrackerIndex]->_record[i]).clear();
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
