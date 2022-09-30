@@ -5,7 +5,6 @@
 #include <queue>
 using namespace std;
 
-
 const int N = 3;
 const int MIN_KEYS_LEAF = (N + 1) / 2;
 const int MIN_KEYS_INTERNAL = N / 2;
@@ -123,7 +122,7 @@ public:
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = accessNumVotes(record);
                     (nodeTracker[nodeTrackerIndex]->_record[i]).push_back(record);
-                    //printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
+                    // printf("%d ",nodeTracker[nodeTrackerIndex]->_record[i]->getValue());
                     nodeTracker[nodeTrackerIndex]->_size++;
                     // printf(" i1 ");
                     break;
@@ -178,7 +177,7 @@ public:
                 }
             }
             _noOfNodes++;
-            //printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
+            // printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
         else
@@ -231,7 +230,7 @@ public:
                 else
                 {
                     nodeTracker[nodeTrackerIndex]->_key[i] = NULL;
-                    //nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
+                    // nodeTracker[nodeTrackerIndex]->_record[i] = NULL;
                 }
             }
             for (int i = 0; i < N; i++)
@@ -245,7 +244,7 @@ public:
                 else
                 {
                     newNode->_key[i] = NULL;
-                    //newNode->_record[i] = NULL;
+                    // newNode->_record[i] = NULL;
                 }
             }
         }
@@ -540,14 +539,13 @@ public:
     // idk if can yet, but try return reference of record, not found return nothing
     Address *remove(int key, int &numNodesDeleted)
     {
+        Address *removedRecord = NULL;
+
         if (_root == NULL)
         {
             cout << "tree is empty" << endl;
-            return NULL;
+            return removedRecord;
         }
-
-        Address *removedRecord = NULL;
-        // int numNodesDeleted = 0;
 
         struct relatedNodes nodes = getLeafNode(key);
         Node *leafNode = nodes.node;
@@ -572,7 +570,7 @@ public:
         {
             // key not found
             cout << "key not found" << endl;
-            return NULL;
+            return removedRecord;
         }
 
         // delete the key at leaf node (check if underflow -> can borrow from sibling, cannot borrow from sibling), update parents recursively
@@ -583,7 +581,6 @@ public:
             // duplicate key, no need to remove key in B+ tree, just remove duplicate
             removedRecord = (leafNode->_record[keyIndex]).front();
             leafNode->_record[keyIndex].erase(leafNode->_record[keyIndex].begin()); // remove first record
-            displayStats(numNodesDeleted);
 
             return removedRecord;
         }
@@ -612,7 +609,6 @@ public:
             _root = NULL;
             _height--;
             cout << "entire tree deleted" << endl;
-            displayStats(++numNodesDeleted);
 
             return removedRecord;
         }
@@ -632,7 +628,6 @@ public:
         if (leafNode == _root || leafNode->_size >= MIN_KEYS_LEAF)
         {
             cout << "minimum met, no need to consider cases" << endl;
-            displayStats(numNodesDeleted);
             return removedRecord;
         }
 
@@ -734,8 +729,6 @@ public:
 
             removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
         }
-
-        displayStats(numNodesDeleted);
 
         return removedRecord;
     }
@@ -1064,14 +1057,14 @@ public:
     }
 
     // inclusive on both lower bound and upper bound
-    void searchRange(int lower, int upper)
+    vector<Address *> searchRange(int lower, int upper)
     {
-        // std::vector<Record *> records = {};
+        std::vector<Address *> records = {};
 
         if (_root == NULL)
         {
             cout << "B+ tree is empty";
-            return;
+            return records;
             // return records;
         }
 
@@ -1125,10 +1118,14 @@ public:
                 if (cur->_key[i] >= lower && cur->_key[i] <= upper)
                 {
                     numFound = numFound + cur->_record[i].size();
-                    foundTotal = foundTotal + cur->_key[i] * cur->_record[i].size(); // check these
-                    cout << "checking record getvalue: " << accessNumVotes(cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
+                    for (int j = 0; j < cur->_record[i].size(); j++)
+                    {
+                        foundTotal = foundTotal + accessAvgRating(cur->_record[i].at(j));
+                    }
+                    // cout << "checking record getvalue: " << accessNumVotes(cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
                     // numFound++;
                     // foundTotal = foundTotal + cur->_key[i];
+                    records.insert(end(records), begin(cur->_record[i]), end(cur->_record[i]));
                     // records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
@@ -1145,12 +1142,18 @@ public:
 
         cout << "Number of records found: " << numFound << endl;
         cout << "Average rating: " << (float)foundTotal / numFound << endl;
-        return;
+        return records;
     }
 
-    void displayStats(int numNodesDeleted)
+    void displayRemoveStats(int numNodesDeleted) // can actually do in main, since the int is in main
     {
         cout << "Number of nodes deleted: " << numNodesDeleted << endl;
+        displayStats();
+    }
+
+    void displayStats()
+    {
+
         cout << "Number of nodes in updated B+ tree: " << countTreeNodes() << endl;
         cout << "Height of B+ tree: " << _height << endl;
         if (_height == 0)
