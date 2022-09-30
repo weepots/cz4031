@@ -44,6 +44,13 @@ public:
         }
         _pointer[N + 1] = NULL;
     }
+
+    ~Node()
+    {
+        delete[] _key;
+        delete[] _pointer;
+        delete[] _record;
+    }
 };
 
 class BPlusTree
@@ -592,9 +599,6 @@ public:
         // if only 1 level tree, and last key deleted, entire tree is deleted
         if (leafNode == _root && leafNode->_size == 0)
         {
-            delete[] leafNode->_key;
-            delete[] leafNode->_pointer;
-            delete[] leafNode->_record;
             delete leafNode;
             _root = NULL;
             _height--;
@@ -681,9 +685,6 @@ public:
             leftSiblingNode->_size = j;
             leafNode->_size = 0;
 
-            delete[] leafNode->_key;
-            delete[] leafNode->_pointer;
-            delete[] leafNode->_record;
             delete leafNode;
             // cout << "leaf node merged with left sibling" << endl;
             numNodesDeleted++;
@@ -707,9 +708,6 @@ public:
             leafNode->_size = j;
             rightSiblingNode->_size = 0;
 
-            delete[] rightSiblingNode->_key;
-            delete[] rightSiblingNode->_pointer;
-            delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
             // cout << "leaf node merged with right sibling" << endl;
             numNodesDeleted++;
@@ -738,9 +736,7 @@ public:
                 _root = internalNode->_pointer[0];
             }
             _height--;
-            delete[] internalNode->_key;
-            delete[] internalNode->_pointer;
-            delete[] internalNode->_record;
+
             delete internalNode;
             // cout << "root node deleted" << endl;
             numNodesDeleted++;
@@ -837,9 +833,6 @@ public:
             leftSiblingNode->_size = j;
             internalNode->_size = 0;
 
-            delete[] internalNode->_key;
-            delete[] internalNode->_pointer;
-            delete[] internalNode->_record;
             delete internalNode;
             // cout << "internal node merged with left sibling";
             numNodesDeleted++;
@@ -865,9 +858,6 @@ public:
             internalNode->_size = j;
             rightSiblingNode->_size = 0;
 
-            delete[] rightSiblingNode->_key;
-            delete[] rightSiblingNode->_pointer;
-            delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
             // cout << "internal node merged with right sibling";
             numNodesDeleted++;
