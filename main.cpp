@@ -15,7 +15,7 @@ int main(){
     cout << "1. 200 bytes\n"; 
     cout << "2. 500 Bytes\n" ;
     cout << "3. Quit\n";
-    cout << "Option: ";
+    cout << "Option: \n";
     cin >> input;
     switch (input){
         case 1:
@@ -61,11 +61,9 @@ int main(){
         //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
-    // for(int i = 0 ; i < addressVector.size(); i++){
-    //     Record temp = storage.readRecord(&addressVector[i]);
-    //     printf("%s %d\n", temp.tconst, temp.numVotes); 
-    // }
-    // storage.deleteRecord(&addressVector[1], sizeof(Record));
+    //cout << storage.emptyCheck(&addressVector[0], sizeof(Record)) << "\n";
+    //storage.deleteRecord(&addressVector[0], sizeof(Record));
+    //cout << storage.emptyCheck(&addressVector[0], sizeof(Record)) << "\n";
     //storage.printEveryRecordInAccessedBlock();
 
     // Record temp;
@@ -90,7 +88,7 @@ int main(){
 
     //storage.printEveryRecordInAccessedBlock();
     //storage.printEveryRecordInSameBlock(addressVector[0]);
-    //storage.display();
+    storage.display();
     fin.close();
 
     // Experiment 1: 
@@ -138,7 +136,7 @@ int main(){
     // }
 
     // cout << "Done removing" << "\n";
-    //tree.displayTree();
+    tree.displayTree();
 
 
     // Experiment 3: retrieve those movies with the “numVotes” equal

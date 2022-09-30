@@ -110,23 +110,25 @@ void Storage::deleteRecord(Address *address, int recordSize){
     //get record address
     try{
         Record temp = readRecord(address);
-        temp.deleted = true; //Set the deleted status to true;
-        void *ptr = (char*) address->blockAddress+address->offset;
-        memcpy(ptr, &temp, sizeof(Record));
-        deletedAddress.push_back(address);
-      
-        //Update actual storage size
-        totalUsedRecordSize -= recordSize;
-        if( (char*)address->blockAddress == blkPtr){
-            currentUsedBlkSize -= recordSize;
-        }
+        if(!temp.deleted){
+            temp.deleted = true; //Set the deleted status to true;
+            void *ptr = (char*) address->blockAddress+address->offset;
+            memcpy(ptr, &temp, sizeof(Record));
+            deletedAddress.push_back(address);
+        
+            //Update actual storage size
+            totalUsedRecordSize -= recordSize;
+            if( (char*)address->blockAddress == blkPtr){
+                currentUsedBlkSize -= recordSize;
+            }
 
-        //If the block is empty, remove the block
-        // if(emptyCheck(address)){
-        //     totalUsedBlkSize -= blkNodeSize;
-        //     usedBlk--;
-        //     availBlk++;
-        // }
+            //If the block is empty, remove the block
+            if(emptyCheck(address, recordSize)){
+                totalUsedBlkSize -= blkNodeSize;
+                usedBlk--;
+                availBlk++;
+            }
+        }
     }
     catch(...){
         cout<<"Could not remove record/block";
@@ -171,11 +173,16 @@ bool Storage::getDeleted(Address *address){
     return temp.deleted;
 }
 
-bool Storage:: emptyCheck(Address * address){
-    char *emptyBlock = new char[blkNodeSize];
-    memset(emptyBlock, '\0', blkNodeSize);
-    bool isEmptyBlock = memcmp(emptyBlock, address->blockAddress, blkNodeSize);
-    return isEmptyBlock;
+bool Storage:: emptyCheck(Address * address, int recordSize){
+    char * tempBlkPtr = storagePtr + usedBlk * blkNodeSize; //Allocate location of block
+    Record temp;
+    for(int i = 0; i < blkNodeSize; i += recordSize){
+        void *ptr = (char*) address->blockAddress + i;
+        memcpy(&temp, (char*)ptr, recordSize);
+        cout << "\t" << temp.deleted << "\n";
+        if(!temp.deleted) return false;
+    }
+    return true;
 }
 
 void Storage::insertBlkAccessed(Address *address){

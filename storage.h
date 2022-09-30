@@ -69,7 +69,7 @@ public:
     int getNumVotes(Address *address);
     bool getDeleted(Address *address);
     void deleteRecord(Address *address, int recordSize);
-    bool emptyCheck(Address *address);
+    bool emptyCheck(Address *address, int recordSize);
     void insertBlkAccessed(Address *address);
     int resetBlkAccessed();
     int getBlkAccessed();
