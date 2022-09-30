@@ -535,15 +535,15 @@ public:
     }
 
     // removes first record with matched key from b+ tree, updates b+ tree, returns address of record removed
-    // record is not actually removed from memory yet
-    // idk if can yet, but try return reference of record, not found return nothing
+    // record is not actually removed from memory yet. returns NULL if no record with given key
+    // numNodesDeleted will iterate if node is deleted when removing key
     Address *remove(int key, int &numNodesDeleted)
     {
         Address *removedRecord = NULL;
 
         if (_root == NULL)
         {
-            cout << "tree is empty" << endl;
+            // cout << "tree is empty" << endl;
             return removedRecord;
         }
 
@@ -556,20 +556,10 @@ public:
         int leftSiblingIndex = nodes.leftSiblingIndex;
         int rightSiblingIndex = nodes.rightSiblingIndex;
         int keyIndex = nodes.keyIndex;
-        // cout << "------LEAF NODE DETAILS------" << endl;
-        // cout << "leafNode: " << leafNode << endl;
-        // cout << "parentNode: " << parentNode << endl;
-        // cout << "leftSiblingNode: " << leftSiblingNode << endl;
-        // cout << "rightSiblingNode: " << rightSiblingIndex << endl;
-        // cout << "leafNodeIndex: " << leafNodeIndex << endl;
-        // cout << "leftSiblingIndex: " << leftSiblingIndex << endl;
-        // cout << "rightSiblingIndex: " << rightSiblingIndex << endl;
-        // cout << "keyIndex: " << keyIndex << endl;
 
         if (leafNode == NULL)
         {
-            // key not found
-            cout << "key not found" << endl;
+            // cout << "key not found" << endl;
             return removedRecord;
         }
 
@@ -590,7 +580,7 @@ public:
             removedRecord = leafNode->_record[keyIndex].front();
             for (int i = keyIndex; i < leafNode->_size - 1; i++)
             {
-                leafNode->_key[i] = leafNode->_key[i + 1]; // not sure if will be issue if deleting from full leaf node
+                leafNode->_key[i] = leafNode->_key[i + 1];
                 leafNode->_record[i] = leafNode->_record[i + 1];
             }
             leafNode->_size--;
@@ -608,7 +598,7 @@ public:
             delete leafNode;
             _root = NULL;
             _height--;
-            cout << "entire tree deleted" << endl;
+            // cout << "entire tree deleted" << endl;
 
             return removedRecord;
         }
@@ -617,24 +607,21 @@ public:
         // if 1 level tree, no need to update (no parents)
         if (leafNode != _root && keyIndex == 0)
         {
-            cout << "leftmost key in leaf node deleted" << endl;
+            // cout << "leftmost key in leaf node deleted" << endl;
             // if node is also leftmost in parent, update grandparent and so on (bc subtree min is affected)
             updateParent(parentNode, leafNodeIndex, leafNode->_key[0]);
         }
 
-        // check for min keys (leaf node)
-        // cout << "leafNode size: " << leafNode->_size << endl;
-        // cout << "MIN_KEYS_LEAF: " << MIN_KEYS_LEAF << endl;
         if (leafNode == _root || leafNode->_size >= MIN_KEYS_LEAF)
         {
-            cout << "minimum met, no need to consider cases" << endl;
+            // cout << "minimum met, no need to consider cases" << endl;
             return removedRecord;
         }
 
         // case 1: can borrow from left sibling
         if (leftSiblingNode != NULL && leftSiblingNode->_size - 1 >= MIN_KEYS_LEAF)
         {
-            cout << "remove() case 1" << endl;
+            // cout << "remove() case 1" << endl;
             // make space at leftmost on leafNode
             for (int i = leafNode->_size; i > 0; i--)
             {
@@ -652,14 +639,14 @@ public:
             leftSiblingNode->_record[leftSiblingNode->_size] = emptyVector;
 
             // only direct parent will be affected.
-            // will not borrow minimum key (leftmost on left sibling), so parents above will not change (? need confirm)
+            // will not borrow minimum key (leftmost on left sibling), so parents above will not change
             parentNode->_key[leafNodeIndex - 1] = leafNode->_key[0];
         }
 
         // case 2: can borrow from right sibling
         else if (rightSiblingNode != NULL && rightSiblingNode->_size - 1 >= MIN_KEYS_LEAF)
         {
-            cout << "remove() case 2" << endl;
+            // cout << "remove() case 2" << endl;
             // take leftmost key from right sibling
             leafNode->_key[leafNode->_size] = rightSiblingNode->_key[0];
             leafNode->_record[leafNode->_size] = rightSiblingNode->_record[0];
@@ -682,7 +669,7 @@ public:
         // case 3: cannot borrow from either, merge with left sibling
         else if (leftSiblingNode != NULL)
         {
-            cout << "remove() case 3" << endl;
+            // cout << "remove() case 3" << endl;
             int j = leftSiblingNode->_size; // current index for left sibling
             for (int i = 0; i < leafNode->_size; i++)
             {
@@ -698,17 +685,17 @@ public:
             delete[] leafNode->_pointer;
             delete[] leafNode->_record;
             delete leafNode;
-            cout << "leaf node merged with left sibling" << endl;
+            // cout << "leaf node merged with left sibling" << endl;
             numNodesDeleted++;
 
             // decrease num keys/ptrs in parent node, need to update parent nodes recursively
             removeInternal(parentNode, leafNodeIndex, numNodesDeleted);
         }
 
-        // ? case 4: cannot borrow, no left sibling, merge with right sibling
+        // case 4: cannot borrow, no left sibling, merge with right sibling
         else if (rightSiblingNode != NULL)
         {
-            cout << "remove() case 4" << endl;
+            // cout << "remove() case 4" << endl;
             int j = leafNode->_size;
             for (int i = 0; i < rightSiblingNode->_size; i++)
             {
@@ -724,7 +711,7 @@ public:
             delete[] rightSiblingNode->_pointer;
             delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
-            cout << "leaf node merged with right sibling" << endl;
+            // cout << "leaf node merged with right sibling" << endl;
             numNodesDeleted++;
 
             removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
@@ -737,19 +724,17 @@ public:
     // internalNode: parent node of deleted child node
     void removeInternal(Node *internalNode, int removedChildIndex, int &numNodesDeleted)
     {
-        // cout << "running removeInternal( " << internalNode << ", " << removedChildIndex << " )" << endl;
         // special case: if internalNode is the root, and has no keys (aka < 2 ptrs) after deletion, remove root
         if (internalNode == _root && internalNode->_size == 1)
         {
-            cout << "in special case" << endl;
             if (removedChildIndex == 0)
             {
-                cout << "using left child as root" << endl;
+                // cout << "using left child as root" << endl;
                 _root = internalNode->_pointer[1];
             }
             else
             {
-                cout << "using right child as root" << endl;
+                // cout << "using right child as root" << endl;
                 _root = internalNode->_pointer[0];
             }
             _height--;
@@ -757,7 +742,7 @@ public:
             delete[] internalNode->_pointer;
             delete[] internalNode->_record;
             delete internalNode;
-            cout << "root node deleted" << endl;
+            // cout << "root node deleted" << endl;
             numNodesDeleted++;
             return;
         }
@@ -766,17 +751,16 @@ public:
         for (int i = removedChildIndex - 1; i < internalNode->_size; i++)
         {
             internalNode->_key[i] = internalNode->_key[i + 1];
-            internalNode->_pointer[i + 1] = internalNode->_pointer[i + 2]; // TODO: check this
+            internalNode->_pointer[i + 1] = internalNode->_pointer[i + 2];
         }
         internalNode->_size--;
         internalNode->_key[internalNode->_size] = NULL;
         internalNode->_pointer[internalNode->_size + 1] = NULL;
 
         // check if have minimum keys
-        // cout << "testing condition: " << (internalNode == _root) << " " << (internalNode->_size) << endl;
         if (internalNode == _root || internalNode->_size >= MIN_KEYS_INTERNAL)
         {
-            cout << "internal node minimum keys fulfilled" << endl;
+            // cout << "internal node minimum keys fulfilled" << endl;
             return;
         }
 
@@ -788,19 +772,11 @@ public:
         int internalNodeIndex = nodes.nodeIndex;
         int leftSiblingIndex = nodes.leftSiblingIndex;
         int rightSiblingIndex = nodes.rightSiblingIndex;
-        // cout << "------INTERNAL NODE DETAILS------" << endl;
-        // cout << "internal: " << internalNode << endl;
-        // cout << "parentNode: " << parentNode << endl;
-        // cout << "leftSiblingNode: " << leftSiblingNode << endl;
-        // cout << "rightSiblingNode: " << rightSiblingNode << endl;
-        // cout << "internalNodeIndex: " << internalNodeIndex << endl;
-        // cout << "leftSiblingIndex: " << leftSiblingIndex << endl;
-        // cout << "rightSiblingIndex: " << rightSiblingIndex << endl;
 
         // case 1: borrow from left sibling
         if (leftSiblingNode != NULL && leftSiblingNode->_size - 1 >= MIN_KEYS_INTERNAL)
         {
-            cout << "removeInternal() case 1" << endl;
+            // cout << "removeInternal() case 1" << endl;
             // take last pointer of left sibling to be first pointer of internal node
             // new key of internal node = min key of subtree pointed to w original pointer
             internalNode->_pointer[internalNode->_size + 1] = internalNode->_pointer[internalNode->_size]; // move last pointer first
@@ -825,9 +801,9 @@ public:
         // case 2: borrow from right sibling
         if (rightSiblingNode != NULL && rightSiblingNode->_size - 1 >= MIN_KEYS_INTERNAL)
         {
-            cout << "removeInternal() case 2" << endl;
+            // cout << "removeInternal() case 2" << endl;
             internalNode->_pointer[internalNode->_size + 1] = rightSiblingNode->_pointer[0];
-            internalNode->_key[internalNode->_size] = parentNode->_key[rightSiblingIndex - 1]; // getMinKey(rightSiblingNode->_pointer[0]);
+            internalNode->_key[internalNode->_size] = parentNode->_key[rightSiblingIndex - 1];
             internalNode->_size++;
 
             parentNode->_key[rightSiblingIndex - 1] = rightSiblingNode->_key[0];
@@ -847,9 +823,9 @@ public:
         // case 3: cannot borrow from siblings, merge with left sibling
         if (leftSiblingNode != NULL)
         {
-            cout << "removeInternal() case 3" << endl;
+            // cout << "removeInternal() case 3" << endl;
             // consider only the pointers of internalNode when adding to left sibling
-            leftSiblingNode->_key[leftSiblingNode->_size] = parentNode->_key[internalNodeIndex - 1]; // TODO: check this
+            leftSiblingNode->_key[leftSiblingNode->_size] = parentNode->_key[internalNodeIndex - 1];
             leftSiblingNode->_pointer[leftSiblingNode->_size + 1] = internalNode->_pointer[0];
             int j = leftSiblingNode->_size + 1;
             for (int i = 0; i < internalNode->_size; i++)
@@ -865,7 +841,7 @@ public:
             delete[] internalNode->_pointer;
             delete[] internalNode->_record;
             delete internalNode;
-            cout << "internal node merged with left sibling";
+            // cout << "internal node merged with left sibling";
             numNodesDeleted++;
             removeInternal(parentNode, internalNodeIndex, numNodesDeleted);
 
@@ -875,7 +851,7 @@ public:
         // case 4: cannot borrow from siblings, no left sibling, merge with right sibling
         if (rightSiblingNode != NULL)
         {
-            cout << "removeInternal() case 4" << endl;
+            // cout << "removeInternal() case 4" << endl;
             // new key = min of right subtree = key in parent node
             internalNode->_key[internalNode->_size] = parentNode->_key[rightSiblingIndex - 1];
             internalNode->_pointer[internalNode->_size + 1] = rightSiblingNode->_pointer[0];
@@ -893,7 +869,7 @@ public:
             delete[] rightSiblingNode->_pointer;
             delete[] rightSiblingNode->_record;
             delete rightSiblingNode;
-            cout << "internal node merged with right sibling";
+            // cout << "internal node merged with right sibling";
             numNodesDeleted++;
             removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
 
@@ -905,7 +881,7 @@ public:
     {
         Node *node = NULL;
         Node *parentNode = NULL;
-        Node *leftSiblingNode = NULL; // consider just returning the index and accessing via that?
+        Node *leftSiblingNode = NULL;
         Node *rightSiblingNode = NULL;
         int nodeIndex, leftSiblingIndex, rightSiblingIndex;
         int keyIndex; // index of key in leaf node
@@ -915,7 +891,6 @@ public:
     // only stops when 1. child is not leftmost in parent, or 2. parent is root
     void updateParent(Node *parent, int childIndex, int newMinKey)
     {
-        // cout << "in updateParent(" << childIndex << " " << newMinKey << endl;
         if (childIndex == 0 && parent != _root)
         {
             struct relatedNodes nodes = getRelatedNodes(parent);
@@ -958,13 +933,13 @@ public:
                     nodes.nodeIndex = i;
                     if (i > 0)
                     { // have left sibling
-                        cout << "getrelatednodes left sibling found, index " << i - 1 << endl;
+                        // cout << "getrelatednodes left sibling found, index " << i - 1 << endl;
                         nodes.leftSiblingNode = cur->_pointer[i - 1];
                         nodes.leftSiblingIndex = i - 1;
                     }
                     if (i < cur->_size)
                     { // have right sibling
-                        cout << "getrelatednodes right sibling found, index " << i + 1 << endl;
+                        // cout << "getrelatednodes right sibling found, index " << i + 1 << endl;
                         nodes.rightSiblingNode = cur->_pointer[i + 1];
                         nodes.rightSiblingIndex = i + 1;
                     }
@@ -1006,24 +981,21 @@ public:
             if (found)
             {
                 cur = cur->_pointer[i];
-                cout << "getLeafNode: following " << i << "th pointer" << endl;
+                // cout << "getLeafNode: following " << i << "th pointer" << endl;
             }
             else
             {
                 cur = cur->_pointer[i];
-                cout << "getLeafNode: following " << i << "th pointer" << endl;
+                // cout << "getLeafNode: following " << i << "th pointer" << endl;
             }
         }
-
-        // cout << "getLeafNode narrowed down to this leaf: " << endl;
-        // displayLeafNode(cur);
 
         // check if leaf node actually has the key
         for (int j = 0; j < cur->_size; j++)
         {
             if (cur->_key[j] == key)
             {
-                cout << "exact key found in leaf node, index in parent node:" << i << endl;
+                // cout << "exact key found in leaf node, index in parent node:" << i << endl;
                 nodes.node = cur;
                 nodes.keyIndex = j;
                 if (cur == _root)
@@ -1034,13 +1006,13 @@ public:
                 nodes.parentNode = prev;
                 if (i > 0)
                 { // have left sibling
-                    cout << "left sibling found" << endl;
+                    // cout << "left sibling found" << endl;
                     nodes.leftSiblingNode = prev->_pointer[i - 1];
                     nodes.leftSiblingIndex = i - 1;
                 }
                 if (i < prev->_size)
                 { // have right sibling
-                    cout << "right sibling found" << endl;
+                    // cout << "right sibling found" << endl;
                     nodes.rightSiblingNode = prev->_pointer[i + 1];
                     nodes.rightSiblingIndex = i + 1;
                 }
@@ -1048,8 +1020,8 @@ public:
             }
             else if (cur->_key[j] > key)
             { // key not found
-                cout << "exact key not found in leaf node" << endl;
-                return nodes; // TODO: not sure if can return this? need to check
+                // cout << "exact key not found in leaf node" << endl;
+                return nodes;
             }
         }
 
@@ -1065,7 +1037,6 @@ public:
         {
             cout << "B+ tree is empty";
             return records;
-            // return records;
         }
 
         Node *cur = _root;
@@ -1097,8 +1068,7 @@ public:
                     break;
                 }
             }
-            cur = cur->_pointer[i]; // check
-            // cur = (found) ? cur->_pointer[i] : cur->_pointer[i + 1];
+            cur = cur->_pointer[i];
         }
 
         // check if leaf node actually has key >= LB. if not, start result from next node
@@ -1122,11 +1092,7 @@ public:
                     {
                         foundTotal = foundTotal + accessAvgRating(cur->_record[i].at(j));
                     }
-                    // cout << "checking record getvalue: " << accessNumVotes(cur->_record[i].front()) << " should be " << cur->_key[i] << endl;
-                    // numFound++;
-                    // foundTotal = foundTotal + cur->_key[i];
                     records.insert(end(records), begin(cur->_record[i]), end(cur->_record[i]));
-                    // records.push_back(cur->_record[i]);
                 }
                 else if (cur->_key[i] > upper)
                 {
@@ -1138,14 +1104,12 @@ public:
         }
 
         cout << "Total number of Index Blocks accessed: " << numIndexNodesAccessed << endl;
-        cout << "\nContent of first 5 data blocks: TODO" << endl;
-
         cout << "Number of records found: " << numFound << endl;
         cout << "Average rating: " << (float)foundTotal / numFound << endl;
         return records;
     }
 
-    void displayRemoveStats(int numNodesDeleted) // can actually do in main, since the int is in main
+    void displayRemoveStats(int numNodesDeleted)
     {
         cout << "Number of nodes deleted: " << numNodesDeleted << endl;
         displayStats();
@@ -1227,7 +1191,6 @@ public:
         int level = 0;
         while (!queue.empty())
         {
-            // cout << "Current Queue has " << queue.size() << " items" << endl;
             cur = queue.front();
             queue.pop();
             if (prevNumNodes == 0)
@@ -1269,46 +1232,15 @@ public:
             cout << " | " << node->_pointer[i] << " | " << node->_key[i];
         }
         cout << " | " << node->_pointer[i] << endl;
-
-        // cout << "Internal Node (until NULL)";
-        // for (int i = 0; i < N; i++)
-        // {
-        //     if (node->_pointer[i] != NULL)
-        //     {
-
-        //         cout << " | " << node->_pointer[i];
-        //     }
-        //     if (node->_key[i] != NULL)
-        //     {
-        //         cout << " | " << node->_key[i];
-        //     }
-        // }
-        // cout << endl;
     }
     void displayLeafNode(Node *node)
     {
         cout << "Leaf Node [" << node->_size << " records]: ";
         for (int i = 0; i < node->_size; i++)
         {
-            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")" //<< " val: " << node->_record[i].front()->getValue()
+            cout << " | " << (node->_record[i]).front() << " (" << node->_record[i].size() << ")"
                  << " | " << node->_key[i];
         }
         cout << " | nextNode:" << node->_nextNode << endl;
-
-        // cout << "Leaf Node (until NULL)";
-        // for (int i = 0; i < N; i++)
-        // {
-        //     // if (node->_record[i] != NULL)
-        //     if (!node->_record[i].empty())
-        //     {
-
-        //         cout << " | " << &(node->_record[i]);
-        //     }
-        //     if (node->_key[i] != NULL)
-        //     {
-        //         cout << " | " << node->_key[i];
-        //     }
-        // }
-        // cout << endl;
     }
 };
