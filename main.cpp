@@ -16,7 +16,8 @@ int main(){
     cout << "2. 500 Bytes\n" ;
     cout << "3. Quit\n";
     cout << "Option: ";
-    cin >> input;
+    //cin >> input;
+    input = 1;
     switch (input){
         case 1:
             block_size = 200;
@@ -34,11 +35,11 @@ int main(){
     string line;
     getline(fin,line); //Get rid of the first row which is column label;
     bool first = true;
-    vector<Address> addressVector;
+    vector<Address*> addressVector;
     while(getline(fin,line)){
         vector<string> parts;
         Record record;
-        Address dataAddress;
+        Address* dataAddress;
         string tempData;
         
         //passed in record values
@@ -55,17 +56,17 @@ int main(){
         //insert the record into the storage
         //cout << "Failed \n";
         dataAddress = storage.writeRecord(record, sizeof(Record));
-        printf("%p %s %d\n", (char *) dataAddress.blockAddress+dataAddress.offset, record.tconst, record.numVotes);
-        Record temp = storage.readRecord(&dataAddress);
-        printf("%s %d\n", temp.tconst, temp.numVotes);
+        //printf("%p %s %d\n", (char *) dataAddress->blockAddress+dataAddress->offset, record.tconst, record.numVotes);
+        //Record temp = storage.readRecord(dataAddress);
+        //printf("%s %d\n", temp.tconst, temp.numVotes);
         //storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
-    for(int i = 0 ; i < addressVector.size(); i++){
-        Record temp = storage.readRecord(&addressVector[i]);
-        printf("%s %d\n", temp.tconst, temp.numVotes); 
-    }
-    storage.deleteRecord(&addressVector[1], sizeof(Record));
+    // for(int i = 0 ; i < addressVector.size(); i++){
+    //     Record temp = storage.readRecord(addressVector[i]);
+    //     printf("%s %d\n", temp.tconst, temp.numVotes); 
+    // }
+    //storage.deleteRecord(&addressVector[1], sizeof(Record));
     storage.printEveryRecordInAccessedBlock();
 
     // Record temp;
@@ -114,23 +115,38 @@ int main(){
     // - the parameter n of the B+ tree;
     // - the number of nodes of the B+ tree;
     // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
-    BPlusTree tree;
-    for(int i = 0; i < 10; i++){// This here is an address object
-        Address temp = addressVector[i];
-        tree.insert(&temp);
+    // addressVector.clear();
+    // Address * tempAgain;
+    // for(int i = 0; i < 500; i++){
+    //     tempAgain = new Address{nullptr, i};
+    //     addressVector.push_back(tempAgain);
+    //     cout << i << "\n";
+    // }
+
+    BPlusTree tree =  BPlusTree();
+    tree.displayTree();
+    for(int i = 0; i < addressVector.size(); i++){// This here is an address object
+        Address *temp = addressVector[i];
+        //Record tempRec = storage.readRecord(temp);
+        //printf("%p %s %d\n", (char *) temp->blockAddress+temp->offset, tempRec.tconst, tempRec.numVotes);
+        cout << i << "\n";
+        tree.insert(temp);
+
         //cout << storage.getNumVotes(it) << "\n";
         //cout << "inserting....." << "\n";
         //tree.displayTree();
-        cout << i << "\n";
     }
-    cout << "Done inserting" << "\n";
-    tree.displayTree();
 
-    // int numNode = 0;
+    tree.displayTree();
+    cout << "Done inserting" << "\n";
+
+    //int numNode = 0;
     // for(auto it : addressVector){
-    //     cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
-    //     tree.remove(storage.getNumVotes(it), numNode);
-    //     //tree.displayTree();
+    //     Address * temp;
+    //     printf("\n\n search%d %p\n", storage.getNumVotes(&it) ,  (char*) it.blockAddress+it.offset);
+    //     temp = tree.remove(storage.getNumVotes(&it), numNode);
+    //     printf("%p %s %d\n", (char*) temp->blockAddress+temp->offset, storage.getTConst(temp), storage.getNumVotes(temp));
+    //      //tree.displayTree();
     // }
 
     // cout << "Done removing" << "\n";

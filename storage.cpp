@@ -28,31 +28,31 @@ Storage:: ~ Storage(){
 };
 
 //record functions
-Address Storage::writeRecord(Record& record, int recordSize){
+Address *Storage::writeRecord(Record& record, int recordSize){
     if (recordSize > blkNodeSize){
         cout << "Records cannot be larger than block size\n";
         throw "Records cannot be larger than block size";
     }
 
     //Address where our record will be write into
-    Address address;
+    Address *address;
 
     //Update the memory location where address has been deleted
     if(!deletedAddress.empty()){
-        address = *(deletedAddress.back());
+        address = deletedAddress.back();
         deletedAddress.pop_back();
 
         //Insert the record in storage
-        void *ptr = (char*) address.blockAddress+address.offset;
+        void *ptr = (char*) address->blockAddress+address->offset;
         memcpy(ptr, &record, sizeof(Record));
 
         //Update blocks accessed
         if(getBlkAccessed() < 5){
-            insertBlkAccessed(&address);
+            insertBlkAccessed(address);
         }
         //Update statistics
         totalUsedRecordSize += recordSize;
-        if( (char*)address.blockAddress == blkPtr){
+        if( (char*)address->blockAddress == blkPtr){
             currentUsedBlkSize += recordSize;
         }
 
@@ -81,16 +81,17 @@ Address Storage::writeRecord(Record& record, int recordSize){
     }
 
     //Address where our record will be write into
-    address.blockAddress = blkPtr;
-    address.offset = currentUsedBlkSize;
+    address = new Address();
+    address->blockAddress = blkPtr;
+    address->offset = currentUsedBlkSize;
 
     //Insert the record in storage
-    void *ptr = (char*) address.blockAddress+address.offset;
+    void *ptr = (char*) address->blockAddress+address->offset;
     memcpy(ptr, &record, sizeof(Record));
 
     //Update blocks accessed
     if(getBlkAccessed() < 5){
-        insertBlkAccessed(&address);
+        insertBlkAccessed(address);
     }
     
     //Update statistics
