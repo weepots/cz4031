@@ -31,11 +31,12 @@ int main(){
 
     Storage storage(300000000, block_size);
 
-    ifstream fin("data.tsv");
+    ifstream fin("data_full.tsv");
     string line;
     getline(fin,line); //Get rid of the first row which is column label;
     bool first = true;
     vector<Address*> addressVector;
+    cout << sizeof(Record) << "\n";
     while(getline(fin,line)){
         vector<string> parts;
         Record record;
@@ -105,6 +106,7 @@ int main(){
     printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
     printf("Memory used by records (MB)\t: %.5lf\n", (1.0*storage.getTotalUsedRecordSize())/1000000);
     printf("Memory used by blocks (MB)\t: %.5lf\n",  (1.0*storage.getTotalUsedBlkSize()/1000000));
+    printf("Number of Records\t\t: %d\n", storage.getTotalUsedRecordSize()/sizeof(Record));
     cout << "--------------------------------------------------------------------------\n\n";
     
     //storage.printEveryRecordInAccessedBlock();
@@ -134,7 +136,7 @@ int main(){
 
         //cout << storage.getNumVotes(it) << "\n";
         //cout << "inserting....." << "\n";
-        //tree.displayTree();
+        tree.displayTree();
     }
 
     tree.displayTree();

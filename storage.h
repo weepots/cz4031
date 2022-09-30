@@ -5,13 +5,13 @@
 using namespace std;
 
 
-const int tconst_size = 10;
+const int tconst_size = 11;
 typedef unsigned un_int;
 
 struct Record{
     float avgRating = -1; //4 bytes length
     int numVotes = -1; // 4 bytes length
-    char tconst[tconst_size] = "dummy"; //10 bytes length record ID as key
+    char tconst[tconst_size] = "dummy"; //11 bytes length record ID as key
     bool deleted = true; //1 bytes length
 };
 
