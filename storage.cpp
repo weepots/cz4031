@@ -260,7 +260,8 @@ void Storage::printEveryRecordInSameBlock(Address address){
     printf("\n");
 }
 
-void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
+void Storage::printEveryRecordInAccessedBlock(){ 
+    int count = 0;
     for(auto it : blkAccessed){
         printf("Block Number : %d\n", it);
         for(int i = 0; i < blkNodeSize; i += sizeof(Record)){
@@ -268,12 +269,13 @@ void Storage::printEveryRecordInAccessedBlock(){ // TO BE CONTINUED
             void *recordAddress = (char *) storagePtr + it * blkNodeSize;
             memcpy(&temp, (char*)recordAddress + i, sizeof(Record));
             if(!temp.deleted){
-                printf("\t%p %s %d\n", (char*)recordAddress + i, temp.tconst, temp.numVotes);
+                printf("\t%s\n", temp.tconst);
             }
             else{
                 printf("\t ********Empty/Deleted********\n");
             }
         }
+        if(++count == 5) return;
     }
     return;
 }

@@ -9,6 +9,67 @@
 #include "indexing.cpp"
 using namespace std;
 
+void experiment1(Storage& storage){
+    cout << "------------------------------Experiment 1--------------------------------\n";
+    printf("No of available blocks\t\t: %d\n", storage.getAvailBlk());
+    printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
+    printf("Memory used by records (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedRecordSize()) / 1000000);
+    printf("Memory used by blocks (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedBlkSize() / 1000000));
+    cout << "--------------------------------------------------------------------------\n\n";
+
+    storage.resetBlkAccessed();
+}
+
+void experiment2(BPlusTree& tree){
+    cout << "\n\n------------------------------Experiment 2--------------------------------\n";
+    int numNode = 0;
+    tree.displayStats();
+    cout << "--------------------------------------------------------------------------\n\n";
+}
+
+void experiment3(Storage& storage, BPlusTree& tree){
+    cout << "\n\n------------------------------Experiment 3--------------------------------\n";
+    vector<Address*> tempAddressVector = tree.searchRange(500, 500);
+    for(auto it : tempAddressVector){
+        storage.getNumVotes(it);
+    }
+    printf("Number of data blocks process accessed : %d\n", storage.getBlkAccessed());
+    storage.printEveryRecordInAccessedBlock();
+    cout << "--------------------------------------------------------------------------\n\n";
+
+    storage.resetBlkAccessed();
+}
+
+void experiment4(Storage& storage, BPlusTree& tree){
+    cout << "\n\n------------------------------Experiment 4--------------------------------\n";
+    vector<Address*> tempAddressVector = tree.searchRange(30000, 40000);
+    for(auto it : tempAddressVector){
+        storage.getNumVotes(it);
+    }
+    printf("Number of data blocks process accessed : %d\n", storage.getBlkAccessed());
+    storage.printEveryRecordInAccessedBlock();
+    cout << "--------------------------------------------------------------------------\n\n";
+
+    storage.resetBlkAccessed();
+}
+
+void experiment5(Storage& storage, BPlusTree& tree){
+    cout << "\n\n------------------------------Experiment 5--------------------------------\n";
+    int numNodesDeleted = 0;
+    int keyToRemove = 1000;
+    Address *removed;
+    while( (removed = tree.remove(keyToRemove, numNodesDeleted)) != nullptr){
+        numNodesDeleted++;
+    }
+    if (removed != NULL)
+    {
+        numNodesDeleted++;
+        storage.deleteRecord(removed, sizeof(Record));
+    }
+    tree.displayRemoveStats(numNodesDeleted);
+    cout << "--------------------------------------------------------------------------\n\n";
+}
+
 int main()
 {
     int input, block_size;
@@ -52,45 +113,10 @@ int main()
         record.numVotes = stoi(line.substr(pos2 + 1, line.size()));
         record.deleted = false;
 
-        // cout << sizeof(Record) << " " << sizeof(record.tconst) << " " << sizeof(record.avgRating) << " " << sizeof(record.numVotes) << " " << sizeof(record.deleted) << "\n";
-        // cout << record.tconst << " "  << record.avgRating << " " << record.numVotes << "\n";;
-
-        // insert the record into the storage
-        // cout << "Failed \n";
         dataAddress = storage.writeRecord(record, sizeof(Record));
-        // printf("%p %s %d\n", (char *) dataAddress.blockAddress+dataAddress.offset, record.tconst, record.numVotes);
-        // Record temp = storage.readRecord(&dataAddress);
-        // printf("%s %d\n", temp.tconst, temp.numVotes);
-        // storage.deleteRecord(dataAddress, sizeof(Record));
         addressVector.push_back(dataAddress);
     }
-    // cout << storage.emptyCheck(&addressVector[0], sizeof(Record)) << "\n";
-    // storage.deleteRecord(&addressVector[0], sizeof(Record));
-    // cout << storage.emptyCheck(&addressVector[0], sizeof(Record)) << "\n";
-    // storage.printEveryRecordInAccessedBlock();
 
-    // Record temp;
-    // temp.avgRating = 7.2;
-    // temp.numVotes = 1111;
-    // temp.deleted = false;
-
-    // storage.writeRecord(temp, sizeof(Record));
-    // storage.printEveryRecordInAccessedBlock();
-    // Ways to access record (Need Address)
-    // Address adr = addressVector[0];
-    // printf("%s %f %d\n", storage.getTConst(&adr), storage.getAvgRating(&adr), storage.getNumVotes(&adr));
-
-    // Record rec = storage.readRecord(&adr);
-    // printf("%s %f %d\n", rec.tconst, rec.avgRating, rec.numVotes);
-
-    // void* memoryAdr = (char*) adr.blockAddress+adr.offset;
-    // printf("%s \n", (*(Record*)memoryAdr).tconst);
-
-    // printf("%s %f %d\n", accessTConst(&adr), accessAvgRating(&adr), accessNumVotes(&adr));
-    // //----------------------------------------------------------------------------------------------------
-
-    // storage.printEveryRecordInAccessedBlock();
-    // storage.printEveryRecordInSameBlock(addressVector[0]);
     storage.display();
     fin.close();
 
@@ -100,48 +126,23 @@ int main()
     // following statistics:
     // - the number of blocks;
     // - the size of database (in terms of MB);
-    cout << "------------------------------Experiment 1--------------------------------\n";
-    printf("No of available blocks\t\t: %d\n", storage.getAvailBlk());
-    printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
-    printf("Memory used by records (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedRecordSize()) / 1000000);
-    printf("Memory used by blocks (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedBlkSize() / 1000000));
-    cout << "--------------------------------------------------------------------------\n\n";
-
-    // storage.printEveryRecordInAccessedBlock();
-    // printf("Number of blocks : %d\n", storage.resetBlkAccessed());
-    storage.resetBlkAccessed();
+    
+    experiment1(storage);
 
     // Experiment 2: build a B+ tree on the attribute "numVotes" by
     // inserting the records sequentially and report the following statistics:
     // - the parameter n of the B+ tree;
     // - the number of nodes of the B+ tree;
     // - the height of the B+ tree, i.e., the number of levels of the B+ tree;
+    
     BPlusTree tree;
     for (int i = 0; i < addressVector.size(); i++)
     { // This here is an address object
         Address *temp = &addressVector[i];
         tree.insert(temp);
-        // cout << storage.getNumVotes(it) << "\n";
-        // cout << "inserting....." << "\n";
-        // tree.displayTree();
-        // cout << i << "\n";
     }
 
-    tree.displayTree();
-    cout << "\n\n------------------------------Experiment 2--------------------------------\n";
-    int numNode = 0;
-    tree.displayStats();
-    cout << "--------------------------------------------------------------------------\n\n";
-
-    // int numNode = 0;
-    // for(auto it : addressVector){
-    //     cout << "\n" << "\nsearch" << storage.getNumVotes(it) << "\n";
-    //     tree.remove(storage.getNumVotes(it), numNode);
-    //     //tree.displayTree();
-    // }
-
-    // cout << "Done removing" << "\n";
-    tree.displayTree();
+    experiment2(tree);
 
     // Experiment 3: retrieve those movies with the “numVotes” equal
     // to 500 and report the following statistics:
@@ -152,10 +153,7 @@ int main()
     // - the number and the content of data blocks the process accesses;
     // - the average of “averageRating’s” of the records that are returned;
 
-    cout << "\n\n------------------------------Experiment 3--------------------------------\n";
-    tree.searchRange(500, 500);
-    // Misding content data blocks
-    cout << "--------------------------------------------------------------------------\n\n";
+    experiment3(storage, tree);
 
     // Experiment 4: retrieve those movies with the attribute
     // “numVotes” from 30,000 to 40,000, both inclusively and report the following
@@ -164,10 +162,7 @@ int main()
     // - the number and the content of data blocks the process accesses;
     // - the average of “averageRating’s” of the records that are returned;
 
-    cout << "\n\n------------------------------Experiment 4--------------------------------\n";
-    tree.searchRange(30000, 40000);
-    // Misding content data blocks
-    cout << "--------------------------------------------------------------------------\n\n";
+    experiment4(storage, tree);
 
     // Experiment 5: delete those movies with the attribute
     // “numVotes” equal to 1,000, update the B+ tree accordingly, and report the
@@ -179,19 +174,8 @@ int main()
     // - the content of the root node and its 1st child node of the updated B+
     // tree;
 
-    // Remove
-    cout << "\n\n------------------------------Experiment 5--------------------------------\n";
-    int numNodesDeleted = 0;
-    int keyToRemove = 500;
-    Address *removed = tree.remove(keyToRemove, numNodesDeleted);
-    if (removed != NULL)
-    {
-        numNodesDeleted++;
-    }
-    tree.displayRemoveStats(numNodesDeleted);
-    cout << "--------------------------------------------------------------------------\n\n";
+    experiment5(storage, tree);
 
-    tree.displayTree();
     // Re-set the block size to be 500 B and re-do Experiment 1, 2, 3, 4,
     // and 5.
 }
