@@ -11,16 +11,16 @@ using namespace std;
 
 void experiment1(Storage& storage, BPlusTree& tree){
     cout << "------------------------------Experiment 1--------------------------------\n";
-    printf("No of available blocks\t\t\t: %d\n", storage.getAvailBlk());
-    printf("No of used blocks\t\t\t: %d\n", storage.getUsedBlk());
+    printf("No of used blocks\t\t\t: %d\n", storage.getUsedBlk() + tree.getNumNodes());
     printf("Actual memory used by storage (MB)\t: %.5lf\n", (1.0 * storage.getActualMemoryUsed()) / 1000000);
     printf("Actual memory used by indexing (MB)\t: %.5lf\n", tree.getNumNodes() *storage.getblkNodeSize() * 1.0 / 1000000);
+    printf("Actual memory used by database (MB)\t: %.5lf\n", (tree.getNumNodes() *storage.getblkNodeSize() + 1.0 * storage.getActualMemoryUsed())* 1.0 / 1000000);
     printf("Memory used by blocks (MB)\t\t: %.5lf\n", (1.0 * storage.getTotalUsedBlkSize() / 1000000));
     printf("Memory used by records (MB)\t\t: %.5lf\n", (1.0 * storage.getTotalUsedRecordSize()) / 1000000);
     cout << "--------------------------------------------------------------------------\n\n";
 
     storage.resetBlkAccessed();
-}
+}   
 
 void experiment2(BPlusTree& tree){
     cout << "\n\n------------------------------Experiment 2--------------------------------\n";
