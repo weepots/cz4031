@@ -183,7 +183,7 @@ public:
                     nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
                 }
             }
-            _noOfNodes++;
+            //_noOfNodes++;
             // printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
@@ -315,7 +315,7 @@ public:
                         nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
                         nodeTracker[nodeTrackerIndex]->_size++;
                     }
-                    _noOfNodes++;
+                    //_noOfNodes++;
                     newNodesToAdd = false;
                 }
                 else
