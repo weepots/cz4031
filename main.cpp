@@ -63,7 +63,11 @@ void experiment5(Storage& storage, BPlusTree& tree){
         storage.deleteRecord(removed, sizeof(Record));
     }
     tree.displayRemoveStats(numNodesDeleted);
+    printf("Number of data blocks process accessed : %d\n", storage.getBlkAccessed());
+    storage.printEveryRecordInAccessedBlock();
     cout << "--------------------------------------------------------------------------\n\n";
+    
+    storage.resetBlkAccessed();
 }
 
 void experiment(Storage& storage, BPlusTree& tree){
@@ -131,11 +135,15 @@ int main()
         fin.close();
 
         for (int i = 0; i < addressVector.size(); i++){ // This here is an address object
-            Address *temp = &addressVector[i];
-            tree.insert(temp);
+            tree.insert(&addressVector[i]);
         }
         
+        //cout << sizeof(Node) << "\n";
+        //tree.displayTree();
         experiment(storage, tree);
+
+        //storage.~Storage();
+        //tree.~BPlusTree();
     }
 
     // Experiment 1:

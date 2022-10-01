@@ -18,12 +18,14 @@ Storage::Storage(int storageSize, int blkNodeSize){
     this->totalUsedRecordSize = 0;
     this->availBlk = storageSize/blkNodeSize;
     this->usedBlk = 0;
+
+    this->blkAccessed.clear();
     this->deletedAddress.clear();
 };
 
 // destroy class and clear memory
 Storage:: ~ Storage(){
-    delete storagePtr;
+    delete []storagePtr;
     storagePtr = nullptr;
 };
 

@@ -32,9 +32,10 @@ class Node
 public:
     Node()
     {
-        _key = new int[N];
+        this->_key = new int[N];
         _pointer = new Node *[N + 1];
         _record = new vector<Address *>[N];
+        //printf("%d %d %d %d %d %d\n", sizeof(_leafNode), sizeof(_key), sizeof(_pointer), sizeof(_nextNode), sizeof(_record), sizeof(_size));
         // _record = new Record *[N];
 
         for (int i = 0; i < N; i++)
@@ -42,7 +43,7 @@ public:
             _key[i] = NULL;
             _pointer[i] = NULL;
         }
-        _pointer[N + 1] = NULL;
+        _pointer[N] = NULL;
     }
 
     ~Node()
