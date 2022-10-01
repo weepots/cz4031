@@ -199,10 +199,11 @@ public:
         {
             int temp[N + 1];
             std::vector<Address *> recordTemp[N + 1];
-            int floorVal = floor((N + 1) / 2);
-            int ceilVal = ceil((N + 1) / 2);
+            int floorVal = floor((float)(N + 1) / 2);
+            int ceilVal = ceil((float)(N + 1) / 2);
             bool recordAdded = false;
             int keyIndex = 0;
+
             for (int i = 0; i < N + 1; i++)
             {
                 if (!recordAdded)
@@ -329,11 +330,10 @@ public:
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((N) / 2);
-                    int ceilVal = ceil((N) / 2) + 1;
+                    int floorVal = floor((float)(N) / 2)+1;
+                    int ceilVal = ceil((float)(N) / 2) +1;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
-
                     for (int i = 0; i < N + 3; i++)
                     {
                         if (!pointerAdded)
@@ -362,12 +362,12 @@ public:
                     Node *internalNode = new Node;
                     internalNode->_leafNode = false;
                     int tempIndex = 0;
-                    nodeTracker[nodeTrackerIndex - 1]->_size = ceilVal;
-                    internalNode->_size = floorVal;
+                    nodeTracker[nodeTrackerIndex - 1]->_size = ceilVal-1;
+                    internalNode->_size = floorVal-1;
 
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i <= ceilVal)
+                        if (i < ceilVal)
                         {
                             nodeTracker[nodeTrackerIndex - 1]->_pointer[i] = temp[tempIndex];
                             tempIndex++;
@@ -380,7 +380,7 @@ public:
 
                     for (int i = 0; i < N + 1; i++)
                     {
-                        if (i <= floorVal)
+                        if (i < floorVal)
                         {
                             internalNode->_pointer[i] = temp[tempIndex];
                             tempIndex++;
