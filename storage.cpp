@@ -102,16 +102,30 @@ Address Storage::writeRecord(Record& record, int recordSize){
     return address;
 };
 
-Record Storage::readRecord(Address *address){
+Record Storage::readRecord(Address *address, int recordSize){
+    void *ptr = (char * ) address->blockAddress + address->offset;
+    if(ptr >= storagePtr + storageSize || ptr < storagePtr){
+        cout << "The address is trying to access memory location outside of storage\n";
+        throw "Address is trying to access memory location outside of storage";
+    }
+    else if (address->offset % recordSize != 0){
+        cout << "Invalid Address Format\n";
+        throw "Invalid Address Format";
+    }
     Record temp;
     memcpy(&temp, (char*) address->blockAddress+address->offset, sizeof(Record));
+    if(temp.deleted){
+        cout << "There is no record here!\n";
+        throw "There is no record here!";
+
+    }
     return temp;
 }
 
 void Storage::deleteRecord(Address *address, int recordSize){
     //get record address
     try{
-        Record temp = readRecord(address);
+        Record temp = readRecord(address, recordSize);
         if(!temp.deleted){
             temp.deleted = true; //Set the deleted status to true;
             void *ptr = (char*) address->blockAddress+address->offset;
@@ -237,6 +251,29 @@ int Storage :: getAvailBlk(){
 
 int Storage :: getBlkNo(Address *address){
     return (address->blockAddress - storagePtr) / blkNodeSize;
+}
+
+int Storage :: getActualMemoryUsed(){
+    int sum = 0;
+    sum += sizeof(storagePtr);
+    sum += sizeof(blkPtr);
+    sum += sizeof(storageSize);
+    sum += sizeof(blkNodeSize);
+    sum += sizeof(currentUsedBlkSize);
+    sum += sizeof(totalUsedBlkSize);
+    sum += sizeof(totalUsedRecordSize);
+    sum += sizeof(deletedAddress);
+    sum += sizeof(blkAccessed);
+    sum += sizeof(storagePtr);
+    sum += sizeof(availBlk);
+    sum += sizeof(usedBlk);
+
+    sum += sizeof(Address*)*deletedAddress.size();
+    sum += sizeof(int)*blkAccessed.size();
+
+    sum += blkNodeSize * usedBlk; 
+
+    return sum;
 }
 
 void Storage :: display(){

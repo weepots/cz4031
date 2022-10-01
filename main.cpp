@@ -9,12 +9,14 @@
 #include "indexing.cpp"
 using namespace std;
 
-void experiment1(Storage& storage){
+void experiment1(Storage& storage, BPlusTree& tree){
     cout << "------------------------------Experiment 1--------------------------------\n";
-    printf("No of available blocks\t\t: %d\n", storage.getAvailBlk());
-    printf("No of used blocks\t\t: %d\n", storage.getUsedBlk());
-    printf("Memory used by records (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedRecordSize()) / 1000000);
-    printf("Memory used by blocks (MB)\t: %.5lf\n", (1.0 * storage.getTotalUsedBlkSize() / 1000000));
+    printf("No of available blocks\t\t\t: %d\n", storage.getAvailBlk());
+    printf("No of used blocks\t\t\t: %d\n", storage.getUsedBlk());
+    printf("Actual memory used by storage (MB)\t: %.5lf\n", (1.0 * storage.getActualMemoryUsed()) / 1000000);
+    printf("Actual memory used by indexing (MB)\t: %.5lf\n", tree.getNumNodes() *storage.getblkNodeSize() * 1.0 / 1000000);
+    printf("Memory used by blocks (MB)\t\t: %.5lf\n", (1.0 * storage.getTotalUsedBlkSize() / 1000000));
+    printf("Memory used by records (MB)\t\t: %.5lf\n", (1.0 * storage.getTotalUsedRecordSize()) / 1000000);
     cout << "--------------------------------------------------------------------------\n\n";
 
     storage.resetBlkAccessed();
@@ -71,7 +73,7 @@ void experiment5(Storage& storage, BPlusTree& tree){
 }
 
 void experiment(Storage& storage, BPlusTree& tree){
-    experiment1(storage);
+    experiment1(storage, tree);
     experiment2(tree);
     experiment3(storage, tree);
     experiment4(storage, tree);
@@ -138,12 +140,7 @@ int main()
             tree.insert(&addressVector[i]);
         }
         
-        //cout << sizeof(Node) << "\n";
-        //tree.displayTree();
         experiment(storage, tree);
-
-        //storage.~Storage();
-        //tree.~BPlusTree();
     }
 
     // Experiment 1:

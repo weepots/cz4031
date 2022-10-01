@@ -60,7 +60,7 @@ public:
 
     // record functions
     Address writeRecord(Record& record, int recordSize);
-    Record readRecord(Address *address);
+    Record readRecord(Address *address, int recordSize);
     char* getTConst(Address *address);
     float getAvgRating(Address *address);
     int getNumVotes(Address *address);
@@ -70,6 +70,7 @@ public:
     void insertBlkAccessed(Address *address);
     int resetBlkAccessed();
     int getBlkAccessed();
+    int getActualMemoryUsed();
     
 
     //display functionS
