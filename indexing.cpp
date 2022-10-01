@@ -191,8 +191,8 @@ public:
         {
             int temp[N + 1];
             std::vector<Address *> recordTemp[N + 1];
-            int floorVal = floor((N + 1) / 2);
-            int ceilVal = ceil((N + 1) / 2);
+            int floorVal = floor((float)(N + 1) / 2);
+            int ceilVal = ceil((float)(N + 1) / 2);
             bool recordAdded = false;
             int keyIndex = 0;
             for (int i = 0; i < N + 1; i++)
@@ -321,8 +321,8 @@ public:
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((N) / 2);
-                    int ceilVal = ceil((N) / 2) + 1;
+                    int floorVal = floor((float)(N) / 2);
+                    int ceilVal = ceil((float)(N) / 2) + 1;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
 
