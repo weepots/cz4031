@@ -455,7 +455,7 @@ public:
         }
 
         if (newNodesToAdd)
-        {
+        {_noOfNodes++;
             Node *newRootNode = new Node;
             newRootNode->_leafNode = false;
             newRootNode->_pointer[0] = _root;
