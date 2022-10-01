@@ -11,6 +11,7 @@ const int MIN_KEYS_INTERNAL = N / 2;
 const int NUM_NODES_TO_DISPLAY = 5;
 
 // g++ -o main.exe indexing.cpp main.cpp
+// g++ -o main.exe storage.h storage.cpp indexing.cpp main.cpp
 
 class Node
 {
@@ -35,8 +36,8 @@ public:
         this->_key = new int[N];
         _pointer = new Node *[N + 1];
         _record = new vector<Address *>[N];
-        //printf("%d %d %d %d %d %d\n", sizeof(_leafNode), sizeof(_key), sizeof(_pointer), sizeof(_nextNode), sizeof(_record), sizeof(_size));
-        // _record = new Record *[N];
+        // printf("%d %d %d %d %d %d\n", sizeof(_leafNode), sizeof(_key), sizeof(_pointer), sizeof(_nextNode), sizeof(_record), sizeof(_size));
+        //  _record = new Record *[N];
 
         for (int i = 0; i < N; i++)
         {
@@ -66,6 +67,12 @@ public:
         _root = NULL;
     }
     Node getRoot() { return *_root; }
+
+    int getNumNodes()
+    {
+        return _noOfNodes;
+    }
+
     void insert(Address *record)
     {
         if (_noOfNodes == 0)
@@ -593,14 +600,14 @@ public:
             }
             leafNode->_size--;
             leafNode->_key[leafNode->_size] = NULL;
-            vector<Address *> emptyVector;
-            leafNode->_record[leafNode->_size] = emptyVector;
+            leafNode->_record[leafNode->_size].clear();
         }
 
         // if only 1 level tree, and last key deleted, entire tree is deleted
         if (leafNode == _root && leafNode->_size == 0)
         {
             delete leafNode;
+            _noOfNodes--;
             _root = NULL;
             _height--;
             // cout << "entire tree deleted" << endl;
@@ -640,8 +647,7 @@ public:
 
             leftSiblingNode->_size--;
             leftSiblingNode->_key[leftSiblingNode->_size] = NULL;
-            vector<Address *> emptyVector;
-            leftSiblingNode->_record[leftSiblingNode->_size] = emptyVector;
+            leftSiblingNode->_record[leftSiblingNode->_size].clear();
 
             // only direct parent will be affected.
             // will not borrow minimum key (leftmost on left sibling), so parents above will not change
@@ -665,8 +671,7 @@ public:
             }
             rightSiblingNode->_size--;
             rightSiblingNode->_key[rightSiblingNode->_size] = NULL;
-            vector<Address *> emptyVector;
-            rightSiblingNode->_record[rightSiblingNode->_size] = emptyVector;
+            rightSiblingNode->_record[rightSiblingNode->_size].clear();
 
             parentNode->_key[rightSiblingIndex - 1] = rightSiblingNode->_key[0];
         }
@@ -687,6 +692,7 @@ public:
             leafNode->_size = 0;
 
             delete leafNode;
+            _noOfNodes--;
             // cout << "leaf node merged with left sibling" << endl;
             numNodesDeleted++;
 
@@ -710,6 +716,7 @@ public:
             rightSiblingNode->_size = 0;
 
             delete rightSiblingNode;
+            _noOfNodes--;
             // cout << "leaf node merged with right sibling" << endl;
             numNodesDeleted++;
 
@@ -739,6 +746,7 @@ public:
             _height--;
 
             delete internalNode;
+            _noOfNodes--;
             // cout << "root node deleted" << endl;
             numNodesDeleted++;
             return;
@@ -835,6 +843,7 @@ public:
             internalNode->_size = 0;
 
             delete internalNode;
+            _noOfNodes--;
             // cout << "internal node merged with left sibling";
             numNodesDeleted++;
             removeInternal(parentNode, internalNodeIndex, numNodesDeleted);
@@ -860,6 +869,7 @@ public:
             rightSiblingNode->_size = 0;
 
             delete rightSiblingNode;
+            _noOfNodes--;
             // cout << "internal node merged with right sibling";
             numNodesDeleted++;
             removeInternal(parentNode, rightSiblingIndex, numNodesDeleted);
@@ -1109,7 +1119,7 @@ public:
     void displayStats()
     {
 
-        cout << "Number of nodes in updated B+ tree: " << countTreeNodes() << endl;
+        cout << "Number of nodes in updated B+ tree: " << countTreeNodes() << " checking " << getNumNodes() << endl;
         cout << "Height of B+ tree: " << _height << endl;
         if (_height == 0)
         {
