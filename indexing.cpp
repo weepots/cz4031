@@ -184,7 +184,7 @@ public:
                     nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
                 }
             }
-            _noOfNodes++;
+            //_noOfNodes++;
             // printf("record value before return:%d ",nodeTracker[nodeTrackerIndex]->_record[0]->getValue());
             return;
         }
@@ -192,8 +192,8 @@ public:
         {
             int temp[N + 1];
             std::vector<Address *> recordTemp[N + 1];
-            int floorVal = floor((N + 1) / 2);
-            int ceilVal = ceil((N + 1) / 2);
+            int floorVal = floor((float)(N + 1) / 2);
+            int ceilVal = ceil((float)(N + 1) / 2);
             bool recordAdded = false;
             int keyIndex = 0;
             for (int i = 0; i < N + 1; i++)
@@ -316,14 +316,14 @@ public:
                         nodeTracker[nodeTrackerIndex]->_key[i] = cursor->_key[0];
                         nodeTracker[nodeTrackerIndex]->_size++;
                     }
-                    _noOfNodes++;
+                    //_noOfNodes++;
                     newNodesToAdd = false;
                 }
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((N) / 2);
-                    int ceilVal = ceil((N) / 2) + 1;
+                    int floorVal = floor((float)(N) / 2);
+                    int ceilVal = ceil((float)(N) / 2) + 1;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
 
