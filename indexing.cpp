@@ -1032,7 +1032,7 @@ public:
     // inclusive on both lower bound and upper bound
     vector<Address *> searchRange(int lower, int upper)
     {
-        std::vector<Address *> records = {};
+        std::vector<Address *> records;
 
         if (_root == NULL)
         {
