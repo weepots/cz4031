@@ -330,8 +330,8 @@ public:
                 else
                 {
                     Node *temp[N + 2];
-                    int floorVal = floor((float)(N) / 2)+1;
-                    int ceilVal = ceil((float)(N) / 2) +1;
+                    int floorVal = floor((float)(N) / 2) + 1;
+                    int ceilVal = ceil((float)(N) / 2) + 1;
                     bool pointerAdded = false;
                     int pointerIndex = 0;
                     for (int i = 0; i < N + 3; i++)
@@ -362,8 +362,8 @@ public:
                     Node *internalNode = new Node;
                     internalNode->_leafNode = false;
                     int tempIndex = 0;
-                    nodeTracker[nodeTrackerIndex - 1]->_size = ceilVal-1;
-                    internalNode->_size = floorVal-1;
+                    nodeTracker[nodeTrackerIndex - 1]->_size = ceilVal - 1;
+                    internalNode->_size = floorVal - 1;
 
                     for (int i = 0; i < N + 1; i++)
                     {
@@ -455,7 +455,8 @@ public:
         }
 
         if (newNodesToAdd)
-        {_noOfNodes++;
+        {
+            _noOfNodes++;
             Node *newRootNode = new Node;
             newRootNode->_leafNode = false;
             newRootNode->_pointer[0] = _root;
@@ -1119,7 +1120,7 @@ public:
     void displayStats()
     {
 
-        cout << "Number of nodes in updated B+ tree: " << countTreeNodes() << " checking " << getNumNodes() << endl;
+        cout << "Number of nodes in updated B+ tree: " << getNumNodes() << endl;
         cout << "Height of B+ tree: " << _height << endl;
         if (_height == 0)
         {
